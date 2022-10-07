@@ -16,12 +16,25 @@ const command = {
     this.width = printer.cpl
     this.right = 0
     return (
-      '\x1b@\x1da\x00\x1bM' +
+      // ESC @ - Initialize printer
+      '\x1b@'
+       +
+      // GS a n - Enable/Disable Automatic Status Back (ASB)
+      '\x1da\x00' +
+      // ESC M n - Select character font
+      '\x1bM' +
       (printer.encoding === 'tis620' ? 'a' : '0') +
-      '\x1b \x00\x1cS\x00\x00' +
+      // ESC SP n - Set right-side character spacing
+      '\x1b \x00' +
+      // FS S n1 n2 - Set left- and right-side Kanji character spacing
+      '\x1cS\x00\x00' +
+      // ESC 2 - Select default line spacing 
+      // ESC 3 n - Set line spacing  
       (this.spacing ? '\x1b2' : '\x1b3\x00') +
+      // ESC { n - Turns on/off upside-down printing mode
       '\x1b{' +
       $(this.upsideDown) +
+      // FS . -  Cancel Kanji character mode 
       '\x1c.'
     )
   },
