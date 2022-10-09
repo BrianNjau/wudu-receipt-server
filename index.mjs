@@ -1,4 +1,4 @@
-import USB from './lib/escpos-usb.js'
+import USB from './lib/escpos-usb.mjs'
 import print from './src/print.mjs'
 import { log, toHex, buildBill, buildOrder } from './src/utils.mjs'
 

@@ -1,4 +1,4 @@
-import USB from './lib/escpos-usb.js'
+import USB from './lib/escpos-usb.mjs'
 import print from './src/print.mjs'
 
 const bill = `^^^RECEIPT
