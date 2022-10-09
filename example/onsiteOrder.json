@@ -1,0 +1,213 @@
+{
+    "toPrintOrderContent": [
+        {
+            "chefContent": [
+                {
+                    "attendant": "captains_terrace",
+                    "catalogId": "0GbI000000r9vPCxNUga",
+                    "createdDate": "2022-10-09 01:24:42",
+                    "food": {
+                        "modifier": "",
+                        "name": "煎饺",
+                        "num": "1"
+                    },
+                    "isDelivery": false,
+                    "remark": "",
+                    "statementID": "1",
+                    "tableCode": "A06"
+                },
+                {
+                    "attendant": "captains_terrace",
+                    "catalogId": "0GbI000000r9vPCxNUga",
+                    "createdDate": "2022-10-09 01:24:42",
+                    "food": {
+                        "modifier": "",
+                        "name": "Fish and Chips& 薯条",
+                        "num": "2"
+                    },
+                    "isDelivery": false,
+                    "remark": "",
+                    "statementID": "1",
+                    "tableCode": "A06"
+                },
+                {
+                    "attendant": "captains_terrace",
+                    "catalogId": "0GbI000000r9vPCxNUga",
+                    "createdDate": "2022-10-09 01:24:42",
+                    "food": {
+                        "modifier": "",
+                        "name": "Dynamite Shrimp",
+                        "num": "3"
+                    },
+                    "isDelivery": false,
+                    "remark": "",
+                    "statementID": "1",
+                    "tableCode": "A06"
+                },
+                {
+                    "attendant": "captains_terrace",
+                    "catalogId": "0GbI000000tSFIoOFW2y",
+                    "createdDate": "2022-10-09 01:24:42",
+                    "food": {
+                        "modifier": "",
+                        "name": "LATTE",
+                        "num": "1"
+                    },
+                    "isDelivery": false,
+                    "remark": "",
+                    "statementID": "1",
+                    "tableCode": "A06"
+                },
+                {
+                    "attendant": "captains_terrace",
+                    "catalogId": "0GbI000000r9vwSMe3cW",
+                    "createdDate": "2022-10-09 01:24:42",
+                    "food": {
+                        "modifier": "",
+                        "name": "DOM PERIGNON (FR)",
+                        "num": "1"
+                    },
+                    "isDelivery": false,
+                    "remark": "",
+                    "statementID": "1",
+                    "tableCode": "A06"
+                },
+                {
+                    "attendant": "captains_terrace",
+                    "catalogId": "0GbI000000r9vREUcZHc",
+                    "createdDate": "2022-10-09 01:24:42",
+                    "food": {
+                        "modifier": "",
+                        "name": "Thai Beef and Mango Salad",
+                        "num": "1"
+                    },
+                    "isDelivery": false,
+                    "remark": "",
+                    "statementID": "1",
+                    "tableCode": "A06"
+                },
+                {
+                    "attendant": "captains_terrace",
+                    "catalogId": "0GbI000000spzseS3Zz6",
+                    "createdDate": "2022-10-09 01:24:42",
+                    "food": {
+                        "modifier": "Welldone",
+                        "name": "Tenderloin 300g",
+                        "num": "1"
+                    },
+                    "isDelivery": false,
+                    "remark": "",
+                    "statementID": "1",
+                    "tableCode": "A06"
+                }
+            ],
+            "hardwareType": "Network",
+            "ip": "192.168.1.2"
+        },
+        {
+            "chefContent": [
+                {
+                    "attendant": "captains_terrace",
+                    "catalogId": "0GbI000000r9vPCxNUga",
+                    "createdDate": "2022-10-09 01:24:42",
+                    "food": {
+                        "modifier": "",
+                        "name": "煎饺",
+                        "num": "1"
+                    },
+                    "isDelivery": false,
+                    "remark": "",
+                    "statementID": "1",
+                    "tableCode": "A06"
+                },
+                {
+                    "attendant": "captains_terrace",
+                    "catalogId": "0GbI000000r9vPCxNUga",
+                    "createdDate": "2022-10-09 01:24:42",
+                    "food": {
+                        "modifier": "",
+                        "name": "Fish and Chips& 薯条",
+                        "num": "2"
+                    },
+                    "isDelivery": false,
+                    "remark": "",
+                    "statementID": "1",
+                    "tableCode": "A06"
+                },
+                {
+                    "attendant": "captains_terrace",
+                    "catalogId": "0GbI000000r9vPCxNUga",
+                    "createdDate": "2022-10-09 01:24:42",
+                    "food": {
+                        "modifier": "",
+                        "name": "Dynamite Shrimp",
+                        "num": "3"
+                    },
+                    "isDelivery": false,
+                    "remark": "",
+                    "statementID": "1",
+                    "tableCode": "A06"
+                },
+                {
+                    "attendant": "captains_terrace",
+                    "catalogId": "0GbI000000tSFIoOFW2y",
+                    "createdDate": "2022-10-09 01:24:42",
+                    "food": {
+                        "modifier": "",
+                        "name": "LATTE",
+                        "num": "1"
+                    },
+                    "isDelivery": false,
+                    "remark": "",
+                    "statementID": "1",
+                    "tableCode": "A06"
+                },
+                {
+                    "attendant": "captains_terrace",
+                    "catalogId": "0GbI000000r9vwSMe3cW",
+                    "createdDate": "2022-10-09 01:24:42",
+                    "food": {
+                        "modifier": "",
+                        "name": "DOM PERIGNON (FR)",
+                        "num": "1"
+                    },
+                    "isDelivery": false,
+                    "remark": "",
+                    "statementID": "1",
+                    "tableCode": "A06"
+                },
+                {
+                    "attendant": "captains_terrace",
+                    "catalogId": "0GbI000000r9vREUcZHc",
+                    "createdDate": "2022-10-09 01:24:42",
+                    "food": {
+                        "modifier": "",
+                        "name": "Thai Beef and Mango Salad",
+                        "num": "1"
+                    },
+                    "isDelivery": false,
+                    "remark": "",
+                    "statementID": "1",
+                    "tableCode": "A06"
+                },
+                {
+                    "attendant": "captains_terrace",
+                    "catalogId": "0GbI000000spzseS3Zz6",
+                    "createdDate": "2022-10-09 01:24:42",
+                    "food": {
+                        "modifier": "Welldone",
+                        "name": "Tenderloin 300g",
+                        "num": "1"
+                    },
+                    "isDelivery": false,
+                    "remark": "",
+                    "statementID": "1",
+                    "tableCode": "A06"
+                }
+            ],
+            "hardwareType": "USB",
+            "pid": "0x0001",
+            "vid": "0x0001"
+        }
+    ]
+}

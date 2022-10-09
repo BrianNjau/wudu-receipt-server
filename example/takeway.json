@@ -1,0 +1,132 @@
+{
+  "toPrintBillContent": [
+    {
+      "customerContent": {
+        "address": "Huawei Technologies Rep. Office Hq,Mugumo Road,Masiwa,Kilimani,Nairobi",
+        "city": "0Ge8000000k4Zbx1JwY4",
+        "createdDate": "2022-10-09 13:24:04",
+        "foodList": [
+          {
+            "modifier": "",
+            "name": "Fish and Chips& 薯条",
+            "num": "2",
+            "price": "1"
+          },
+          {
+            "modifier": "",
+            "name": "Monday Lunch",
+            "num": "1",
+            "price": "10"
+          }
+        ],
+        "isDelivery": false,
+        "province": "0Ge8000000k4ZYVxfELg",
+        "remark": "Cool, let's have more fun...........................................................................",
+        "shopName": "Captains",
+        "statementID": "411665311044475444",
+        "takeawayNo": "504062",
+        "totalPrice": "12"
+      },
+      "hardwareType": "Network",
+      "ip": "192.168.1.2"
+    },
+    {
+      "customerContent": {
+        "address": "Huawei Technologies Rep. Office Hq,Mugumo Road,Masiwa,Kilimani,Nairobi",
+        "city": "0Ge8000000k4Zbx1JwY4",
+        "createdDate": "2022-10-09 13:24:04",
+        "foodList": [
+          {
+            "modifier": "",
+            "name": "Fish and Chips& 薯条",
+            "num": "2",
+            "price": "1"
+          },
+          {
+            "modifier": "",
+            "name": "Monday Lunch",
+            "num": "1",
+            "price": "10"
+          }
+        ],
+        "isDelivery": false,
+        "province": "0Ge8000000k4ZYVxfELg",
+        "remark": "Cool, let's have more fun...........................................................................",
+        "shopName": "Captains",
+        "statementID": "411665311044475444",
+        "takeawayNo": "504062",
+        "totalPrice": "12"
+      },
+      "hardwareType": "USB",
+      "pid": "0x0001",
+      "vid": "0x0001"
+    }
+  ],
+  "toPrintOrderContent": [
+    {
+      "chefContent": [
+        {
+          "createdDate": "2022-10-09 13:24:04",
+          "food": {
+            "modifier": "",
+            "name": "Fish and Chips& 薯条",
+            "num": "2"
+          },
+          "isDelivery": false,
+          "receiverName": null,
+          "remark": "Cool, let's have more fun...........................................................................",
+          "statementID": "411665311044475444",
+          "takeawayNo": "504062"
+        },
+        {
+          "createdDate": "2022-10-09 13:24:04",
+          "food": {
+            "modifier": "",
+            "name": "Monday Lunch",
+            "num": "1"
+          },
+          "isDelivery": false,
+          "receiverName": null,
+          "remark": "Cool, let's have more fun...........................................................................",
+          "statementID": "411665311044475444",
+          "takeawayNo": "504062"
+        }
+      ],
+      "hardwareType": "Network",
+      "ip": "192.168.1.2"
+    },
+    {
+      "chefContent": [
+        {
+          "createdDate": "2022-10-09 13:24:04",
+          "food": {
+            "modifier": "",
+            "name": "Fish and Chips& 薯条",
+            "num": "2"
+          },
+          "isDelivery": false,
+          "receiverName": null,
+          "remark": "Cool, let's have more fun...........................................................................",
+          "statementID": "411665311044475444",
+          "takeawayNo": "504062"
+        },
+        {
+          "createdDate": "2022-10-09 13:24:04",
+          "food": {
+            "modifier": "",
+            "name": "Monday Lunch",
+            "num": "1"
+          },
+          "isDelivery": false,
+          "receiverName": null,
+          "remark": "Cool, let's have more fun...........................................................................",
+          "statementID": "411665311044475444",
+          "takeawayNo": "504062"
+        }
+      ],
+      "hardwareType": "USB",
+      "pid": "0x0001",
+      "vid": "0x0001"
+    }
+  ]
+}

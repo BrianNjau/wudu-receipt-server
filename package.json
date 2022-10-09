@@ -4,12 +4,18 @@
   "version": "0.0.1",
   "main": "index.mjs",
   "scripts": {
+    "dev": "nodemon -w index.mjs -w test.mjs -w src -w lib index.mjs",
     "start": "node index.mjs"
   },
   "dependencies": {
-    "escpos-usb": "3.0.0-alpha.4",
-    "iconv-lite": "0.6.3",
-    "pngjs": "6.0.0",
-    "usb": "1.9.2"
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "iconv-lite": "^0.6.3",
+    "numeral": "^2.0.6",
+    "pngjs": "^6.0.0",
+    "usb": "^2.5.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
   }
 }

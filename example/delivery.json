@@ -1,0 +1,138 @@
+{
+  "toPrintBillContent": [
+    {
+      "customerContent": {
+        "address": "Huawei Technologies Rep. Office Hq,Mugumo Road,Masiwa,Kilimani,Nairobi",
+        "city": "0Ge8000000k4Zbx1JwY4",
+        "createdDate": "2022-10-09 13:31:16",
+        "deliveryFee": "20",
+        "foodList": [
+          {
+            "modifier": "",
+            "name": "Fish and Chips& 薯条",
+            "num": "1",
+            "price": "1"
+          },
+          {
+            "modifier": "",
+            "name": "El Presidente",
+            "num": "2",
+            "price": "2"
+          }
+        ],
+        "isDelivery": true,
+        "province": "0Ge8000000k4ZYVxfELg",
+        "receiverAdress": "Somerset Westview Nairobi,Kilimani,Nairobi",
+        "receiverName": "Stephen Tseng",
+        "receiverPhone": "254748930129",
+        "remark": "Jixbxoihwixaznsxbaicaxecudxmbxsosbcbaxnsxnsinncjxjfoacphfhf",
+        "shopName": "Captains",
+        "statementID": "951665311476949444",
+        "totalPrice": "25"
+      },
+      "hardwareType": "Network",
+      "ip": "192.168.1.2"
+    },
+    {
+      "customerContent": {
+        "address": "Huawei Technologies Rep. Office Hq,Mugumo Road,Masiwa,Kilimani,Nairobi",
+        "city": "0Ge8000000k4Zbx1JwY4",
+        "createdDate": "2022-10-09 13:31:16",
+        "deliveryFee": "20",
+        "foodList": [
+          {
+            "modifier": "",
+            "name": "Fish and Chips& 薯条",
+            "num": "1",
+            "price": "1"
+          },
+          {
+            "modifier": "",
+            "name": "El Presidente",
+            "num": "2",
+            "price": "2"
+          }
+        ],
+        "isDelivery": true,
+        "province": "0Ge8000000k4ZYVxfELg",
+        "receiverAdress": "Somerset Westview Nairobi,Kilimani,Nairobi",
+        "receiverName": "Stephen Tseng",
+        "receiverPhone": "254748930129",
+        "remark": "Jixbxoihwixaznsxbaicaxecudxmbxsosbcbaxnsxnsinncjxjfoacphfhf",
+        "shopName": "Captains",
+        "statementID": "951665311476949444",
+        "totalPrice": "25"
+      },
+      "hardwareType": "USB",
+      "pid": "0x0001",
+      "vid": "0x0001"
+    }
+  ],
+  "toPrintOrderContent": [
+    {
+      "chefContent": [
+        {
+          "createdDate": "2022-10-09 13:31:16",
+          "food": {
+            "modifier": "",
+            "name": "Fish and Chips& 薯条",
+            "num": "1"
+          },
+          "isDelivery": true,
+          "receiverName": "Stephen Tseng",
+          "remark": "Jixbxoihwixaznsxbaicaxecudxmbxsosbcbaxnsxnsinncjxjfoacphfhf",
+          "statementID": "951665311476949444",
+          "takeawayNo": null
+        },
+        {
+          "createdDate": "2022-10-09 13:31:16",
+          "food": {
+            "modifier": "",
+            "name": "El Presidente",
+            "num": "2"
+          },
+          "isDelivery": true,
+          "receiverName": "Stephen Tseng",
+          "remark": "Jixbxoihwixaznsxbaicaxecudxmbxsosbcbaxnsxnsinncjxjfoacphfhf",
+          "statementID": "951665311476949444",
+          "takeawayNo": null
+        }
+      ],
+      "hardwareType": "Network",
+      "ip": "192.168.1.2"
+    },
+    {
+      "chefContent": [
+        {
+          "createdDate": "2022-10-09 13:31:16",
+          "food": {
+            "modifier": "",
+            "name": "Fish and Chips& 薯条",
+            "num": "1"
+          },
+          "isDelivery": true,
+          "receiverName": "Stephen Tseng",
+          "remark": "Jixbxoihwixaznsxbaicaxecudxmbxsosbcbaxnsxnsinncjxjfoacphfhf",
+          "statementID": "951665311476949444",
+          "takeawayNo": null
+        },
+        {
+          "createdDate": "2022-10-09 13:31:16",
+          "food": {
+            "modifier": "",
+            "name": "El Presidente",
+            "num": "2"
+          },
+          "isDelivery": true,
+          "receiverName": "Stephen Tseng",
+          "remark": "Jixbxoihwixaznsxbaicaxecudxmbxsosbcbaxnsxnsinncjxjfoacphfhf",
+          "statementID": "951665311476949444",
+          "takeawayNo": null
+        }
+      ],
+      "hardwareType": "USB",
+      "pid": "0x0001",
+      "vid": "0x0001"
+    }
+  ]
+}
