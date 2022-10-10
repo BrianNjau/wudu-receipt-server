@@ -50,10 +50,10 @@ async function Print(req, res) {
     for (const record of toPrintBillContent) {
       try {
         const { hardwareType, ip, vid, pid, customerContent } = record
-        const { isDelivery, takeawayNo } = customerContent
+        const { isDelivery, statementID, tableCode, takeawayNo, receiverName } = customerContent
         const isTakeaway = !!takeawayNo
         const billType = isDelivery ? 'Delivery' : isTakeaway ? 'Takeaway' : 'Onsite'
-        const billInfo = customerContent.statementID || customerContent.tableCode || customerContent.takeawayNo || customerContent.receiverName
+        const billInfo = statementID || tableCode || takeawayNo || receiverName
         if (hardwareType === 'Network') {
           if (!ip) return errList.push(`'ip' empty.`)
           if (net.isIP(ip) !== 4) return errList.push(`'ip: ${ip}' incorrect, should be IPv4 format like: '1.1.1.1'.`)
@@ -91,8 +91,8 @@ async function Print(req, res) {
           if (!ip) return errList.push(`'ip' empty.`)
           if (net.isIP(ip) !== 4) return errList.push(`'ip: ${ip}' incorrect, should be IPv4 format like: '1.1.1.1'.`)
           for (const orderCustomContent of chefContent) {
-            const orderInfo = `${orderCustomContent.food.name} x ${orderCustomContent.food.num}`
             await print(buildOrder(orderCustomContent), `-d ${ip} -l zh`)
+            const orderInfo = `${orderCustomContent.food.name} x ${orderCustomContent.food.num}`
             successList.push(`Print order:${orderInfo} to Network:${ip} done.`)
           }
         } else if (hardwareType === 'USB') {
