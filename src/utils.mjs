@@ -37,7 +37,7 @@ export function unlinkFileIfSizeOver(fileName, megaBytes = 1) {
  * @param {{ prefix: string; details: string; skip: boolean }} [param1] Extra params
  */
 export const log = (str, { prefix = '', details = '', skip } = {}) => {
-  const logPath = path.join(process.cwd(), './.log')
+  const logPath = path.join(process.cwd(), './app.log')
   const time = new Date().toLocaleString()
   unlinkFileIfSizeOver(logPath)
   fs.appendFileSync(logPath, `[${time}] ${prefix}${JSON.stringify(`${str}${details && `|${details}`}`)}\n\n`)
@@ -56,7 +56,7 @@ export const toHex = (str) => str.toString(16).padStart(4, '0')
  * @param {string} str
  * @returns {string}
  */
-export const escapeChars = (str) => str.replace(/_/, '\\_')
+export const escapeChars = (str) => str.replaceAll(/_/g, '\\_')
 
 /**
  * Transform number-like to number

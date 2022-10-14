@@ -1,0 +1,125 @@
+###
+
+# @name BillPrintToUSB
+POST http://localhost:2000/print
+Content-Type: application/json
+
+{
+  "toPrintBillContent": [
+    {
+      "customerContent": {
+        "address": "Connect Coffee,Chiromo,Kileleshwa,Kilimani,Nairobi",
+        "attendant": "Connect_Coffee_Manager",
+        "createdDate": "2022-10-12 19:59:50",
+        "customerNum": "2",
+        "foodList": [
+          { "modifier": "", "name": "Dumpling", "num": "1", "price": "1,000" },
+          { "modifier": "", "name": "Dumpling", "num": "2", "price": "1,000" }
+        ],
+        "isDelivery": false,
+        "logo": "https://obs-ap1qa-kbzcomerce.obs.cn-north-1.myhuaweicloud.com/10gg000000wvyOka41lw%2FImage%2F6693e868-2fe0-4c2d-97ba-07056bc3911f.jpg",
+        "rartingUrl": "https://dev-sg.appcubecloud.com//magno/render/ScanOrder__ScanOrder_0000000000vF8747q4zR/rating?orderNo=null",
+        "remark": "",
+        "shopName": "Connect Coffee",
+        "statementID": "",
+        "tableCode": "A1",
+        "totalPrice": "3,000"
+      },
+      "hardwareType": "USB",
+      "pid": "0x2016",
+      "vid": "0x1FC9"
+    },
+    { "customerContent": { "address": "Connect Coffee,Chiromo,Kileleshwa,Kilimani,Nairobi", "attendant": "Connect_Coffee_Manager", "createdDate": "2022-10-12 16:27:41", "customerNum": "2", "foodList": [{ "modifier": "", "name": "Dumpling", "num": "1", "price": "1,000" }], "isDelivery": false, "logo": "https://obs-ap1qa-kbzcomerce.obs.cn-north-1.myhuaweicloud.com/10gg000000wvyOka41lw%2FImage%2F6693e868-2fe0-4c2d-97ba-07056bc3911f.jpg", "rartingUrl": "https://dev-sg.appcubecloud.com//magno/render/ScanOrder__ScanOrder_0000000000vF8747q4zR/rating?orderNo=891665581277788411", "remark": "", "shopName": "Connect Coffee", "statementID": "891665581277788411", "tableCode": "A1", "totalPrice": "1,000" }, "hardwareType": "USB", "pid": "0x2016", "vid": "0x1FC9" }
+  ]
+}
+
+###
+
+# @name BillPrintToNetwork
+POST http://localhost:2000/print
+Content-Type: application/json
+
+{
+  "toPrintBillContent": [
+    {
+      "customerContent": {
+        "address": "Connect Coffee,Chiromo,Kileleshwa,Kilimani,Nairobi",
+        "attendant": "Connect_Coffee_Manager",
+        "createdDate": "2022-10-12 19:59:50",
+        "customerNum": "2",
+        "foodList": [
+          { "modifier": "", "name": "Dumpling", "num": "1", "price": "1,000" },
+          { "modifier": "", "name": "Dumpling", "num": "2", "price": "1,000" }
+        ],
+        "isDelivery": false,
+        "logo": "https://obs-ap1qa-kbzcomerce.obs.cn-north-1.myhuaweicloud.com/10gg000000wvyOka41lw%2FImage%2F6693e868-2fe0-4c2d-97ba-07056bc3911f.jpg",
+        "rartingUrl": "https://dev-sg.appcubecloud.com//magno/render/ScanOrder__ScanOrder_0000000000vF8747q4zR/rating?orderNo=null",
+        "remark": "",
+        "shopName": "Connect Coffee",
+        "statementID": "",
+        "tableCode": "A1",
+        "totalPrice": "3,000"
+      },
+      "hardwareType": "Network",
+      "ip": "192.168.1.2"
+    },
+    { "customerContent": { "address": "Connect Coffee,Chiromo,Kileleshwa,Kilimani,Nairobi", "attendant": "Connect_Coffee_Manager", "createdDate": "2022-10-12 16:27:41", "customerNum": "2", "foodList": [{ "modifier": "", "name": "Dumpling", "num": "1", "price": "1,000" }], "isDelivery": false, "logo": "https://obs-ap1qa-kbzcomerce.obs.cn-north-1.myhuaweicloud.com/10gg000000wvyOka41lw%2FImage%2F6693e868-2fe0-4c2d-97ba-07056bc3911f.jpg", "rartingUrl": "https://dev-sg.appcubecloud.com//magno/render/ScanOrder__ScanOrder_0000000000vF8747q4zR/rating?orderNo=891665581277788411", "remark": "", "shopName": "Connect Coffee", "statementID": "891665581277788411", "tableCode": "A1", "totalPrice": "1,000" }, "hardwareType": "USB", "pid": "0x2016", "vid": "0x1FC9" }
+  ]
+}
+
+###
+
+# @name OrderPrintToUSB
+POST http://localhost:2000/print
+Content-Type: application/json
+
+{
+  "toPrintOrderContent": [
+    {
+      "chefContent": [
+        {
+          "attendant": "Connect_Coffee_Manager",
+          "catalogId": "0GbI000000x13Z95JpI0",
+          "createdDate": "2022-10-14 14:28:32",
+          "food": { "modifier": "", "name": "Dumpling", "num": "3" },
+          "isDelivery": false,
+          "remark": "",
+          "statementID": "1",
+          "tableCode": "A1"
+        }
+      ],
+      "hardwareType": "USB",
+      "pid": "0x2016",
+      "vid": "0x1FC9"
+    }
+  ]
+}
+
+###
+
+# @name OrderPrintToNetwork
+POST http://localhost:2000/print
+Content-Type: application/json
+
+{
+  "toPrintOrderContent": [
+    {
+      "chefContent": [
+        {
+          "attendant": "Connect_Coffee_Manager",
+          "catalogId": "0GbI000000x13Z95JpI0",
+          "createdDate": "2022-10-14 14:28:32",
+          "food": { "modifier": "", "name": "Dumpling", "num": "3" },
+          "isDelivery": false,
+          "remark": "",
+          "statementID": "1",
+          "tableCode": "A1"
+        }
+      ],
+      "hardwareType": "Network",
+      "ip": "192.168.1.2"
+    }
+  ]
+}
+
+###

@@ -30,7 +30,7 @@ async function Print(req, res) {
   if (!('toPrintBillContent' in req.body) && !('toPrintOrderContent' in req.body)) {
     const resMsg = `Failed: 'toPrintBillContent' and 'toPrintOrderContent' not in the body.`
     errList.push(resMsg)
-    res.json({
+    return res.json({
       resCode: '1',
       resMsg,
     })
@@ -40,7 +40,7 @@ async function Print(req, res) {
   if (!(toPrintBillContent && toPrintBillContent.length) && !(toPrintOrderContent && toPrintOrderContent.length)) {
     const resMsg = `'toPrintBillContent' and 'toPrintOrderContent' empty.`
     errList.push(resMsg)
-    res.json({
+    return res.json({
       resCode: '0',
       resMsg,
     })
@@ -139,12 +139,12 @@ async function Print(req, res) {
         prefix: '[SUCCESS]',
       })
     })
-    res.json({
+    return res.json({
       resCode: '0',
       resMsg: `Print success.`,
     })
   } else {
-    res.json({
+    return res.json({
       resCode: '1',
       resMsg: `Print failed.`,
     })
