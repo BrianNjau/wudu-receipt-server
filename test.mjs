@@ -16,9 +16,9 @@ ${new Date().toLocaleString('zh')}
 ^TOTAL | "^5.00
 
 {code:1234567890; option:code128,2,72,nohri}`
-await print(bill, `-d 192.168.1.2 -l zh`)
+// await print(bill, `-d 192.168.1.2 -l zh`)
 
-// USB打印-已调通
+// USB打印(with escpos-usb)-已调通
 const commands = await print(bill, `-l zh`)
 const device = new USB()
 device.open(() => {
@@ -29,6 +29,9 @@ device.open(() => {
 // const barcode = `{code:1234567890; option:code128,2,72,nohri}`
 // await print(barcode, `-d 192.168.1.2`)
 
-// 二维码-暂未调通
+// USB打印(with receiptio)-未调通
+// await print(bill, `-d ??? -l zh`)
+
+// 二维码-未调通
 // const qrcode = `{code:https://receiptline.github.io/designer/; option:qrcode}`
 // await print(qrcode, `-d 192.168.1.2`)

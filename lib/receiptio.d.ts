@@ -17,23 +17,7 @@ limitations under the License.
 declare module 'receiptio' {
   import { Transform } from 'node:stream'
 
-  type Printer =
-    | 'escpos'
-    | 'citizen'
-    | 'fit'
-    | 'impact'
-    | 'impactb'
-    | 'sii'
-    | 'starsbcs'
-    | 'starmbcs'
-    | 'starmbcs2'
-    | 'starlinesbcs'
-    | 'starlinembcs'
-    | 'starlinembcs2'
-    | 'emustarlinesbcs'
-    | 'emustarlinembcs'
-    | 'emustarlinembcs2'
-    | 'stargraphic'
+  type Printer = 'escpos' | 'citizen' | 'fit' | 'impact' | 'impactb' | 'sii' | 'starsbcs' | 'starmbcs' | 'starmbcs2' | 'starlinesbcs' | 'starlinembcs' | 'starlinembcs2' | 'emustarlinesbcs' | 'emustarlinembcs' | 'emustarlinembcs2' | 'stargraphic'
 
   /**
    * Print receipts, get printer status, or convert to print images.

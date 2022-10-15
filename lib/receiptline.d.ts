@@ -19,25 +19,7 @@ declare module 'receiptline' {
   /**
    * Encoding
    */
-  type Encoding =
-    | 'cp437'
-    | 'cp852'
-    | 'cp858'
-    | 'cp860'
-    | 'cp863'
-    | 'cp865'
-    | 'cp866'
-    | 'cp1252'
-    | 'cp932'
-    | 'cp936'
-    | 'cp949'
-    | 'cp950'
-    | 'multilingual'
-    | 'shiftjis'
-    | 'gb18030'
-    | 'ksc5601'
-    | 'big5'
-    | 'tis620'
+  type Encoding = 'cp437' | 'cp852' | 'cp858' | 'cp860' | 'cp863' | 'cp865' | 'cp866' | 'cp1252' | 'cp932' | 'cp936' | 'cp949' | 'cp950' | 'multilingual' | 'shiftjis' | 'gb18030' | 'ksc5601' | 'big5' | 'tis620'
   /**
    * Printer configuration
    */

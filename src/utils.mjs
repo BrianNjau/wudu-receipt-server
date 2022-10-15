@@ -40,7 +40,7 @@ export const log = (str, { prefix = '', details = '', skip } = {}) => {
   const logPath = path.join(process.cwd(), './app.log')
   const time = new Date().toLocaleString()
   unlinkFileIfSizeOver(logPath)
-  fs.appendFileSync(logPath, `[${time}] ${prefix}${JSON.stringify(`${str}${details && `|${details}`}`)}\n\n`)
+  fs.appendFileSync(logPath, `[${time}] ${prefix}${JSON.stringify(`${str}${details && `|${details}`}`)}\n`)
   if (!skip) console.log(`[${time}] ${prefix}${str}`)
 }
 
@@ -202,7 +202,7 @@ ${normalizedFoodList.map(({ name, modifier, num, price }) => `|${name} |\n${modi
   const receiverPhoneMd = receiverPhone ? `Phone No.: |${receiverPhone}\n` : ''
   const receiverAdressMd = receiverAdress ? `Address: |${receiverAdress}\n` : ''
   const remarkMd = remark ? `Remark: |${remark}\n` : ''
-  const FOOTER = `{w:10,*}\n${statementIDMd}${attendantMd}${createdDateMd}${receiverNameMd}${receiverPhoneMd}${receiverAdressMd}${remarkMd}{w:auto}\n-\n\n`
+  const FOOTER = `{w:10,*}\n${statementIDMd}${attendantMd}${createdDateMd}${receiverNameMd}${receiverPhoneMd}${receiverAdressMd}${remarkMd}{w:auto}\n-\n`
 
   return HEADER + SUB_HEADER + FOOD_TABLE + FOOTER
 }
@@ -237,4 +237,13 @@ export const buildOrder = (orderCustomContent) => {
   const FOOTER = `{w:10,*}\n${statementIDMd}${attendantMd}${createdDateMd}${receiverNameMd}${remarkMd}{w:auto}\n-\n`
 
   return SUB_HEADER + FOOD_TABLE + FOOTER
+}
+
+/**
+ * Sleep for n ms
+ * @param {number} ms 
+ * @returns {Promise<NodeJS.Timeout>}
+ */
+export function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
