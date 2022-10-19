@@ -1,7 +1,7 @@
 {
   "name": "receipt-server",
   "author": "Ynewtime",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "main": "index.mjs",
   "scripts": {
     "dev": "nodemon -w index.mjs -w test.mjs -w src -w lib index.mjs",
