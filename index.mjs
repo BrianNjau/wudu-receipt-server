@@ -72,6 +72,7 @@ try {
             log(resMsg, {
               prefix: '[ERROR]',
             })
+            printEnd()
             return res.json({ resCode: '1', resMsg, session })
           }
 
@@ -79,6 +80,7 @@ try {
           if (!(toPrintBillContent && toPrintBillContent.length) && !(toPrintOrderContent && toPrintOrderContent.length)) {
             const resMsg = `Session:${session}|Print failed: 'toPrintBillContent' and 'toPrintOrderContent' empty.`
             log(resMsg, { prefix: '[ERROR]' })
+            printEnd()
             return res.json({ resCode: '0', resMsg, session })
           }
 
@@ -128,6 +130,7 @@ try {
                     device.open((err) => {
                       if (err) {
                         errList.push(`Session:${session}|Print bill:${billType}|${billInfo} to USB:${vid}|${pid} failed|USB device open failed: ${err}.`)
+                        device.close(printEnd)
                       } else {
                         device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
                           if (writeErr) {
@@ -178,6 +181,7 @@ try {
                       if (err) {
                         errList.push(`Session:${session}|Print order to USB:${vid}|${pid} failed: USB device open failed: ${err}`)
                         errList.push(orderInfo)
+                        device.close(printEnd)
                       } else {
                         device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
                           if (writeErr) {
@@ -227,6 +231,7 @@ try {
               session,
             })
           } else {
+            printEnd()
             return res.json({
               resCode: '1',
               resMsg: `Print failed${errList.length ? `: ${errList[0]}` : ''}.`,
