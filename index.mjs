@@ -4,6 +4,7 @@ import USB from './lib/escpos-usb.mjs'
 import print from './src/print.mjs'
 import { PRINT_TIME } from './src/constants.mjs'
 import { log, toHex, buildBill, buildOrder, sleep } from './src/utils.mjs'
+import packageJson from './package.json' assert { type: 'json' }
 
 import fs from 'node:fs'
 import net from 'node:net'
@@ -274,8 +275,8 @@ try {
   /**
    * Lisenter funtioner on app start
    */
-  function listener() {
-    log(`////////// Printer Tool Start //////////`)
+  function onListen() {
+    log(`////////// Receipt Server ${packageJson.version} Started //////////`)
 
     // Print out USB printers - 寻找本地的USB打印机
     const printers = findPrinter()
@@ -307,7 +308,7 @@ try {
   }
 
   app.post('/print', onPrint)
-  app.listen(2000, listener).on('error', onError)
+  app.listen(2000, onListen).on('error', onError)
 } catch (err) {
   log(err, { prefix: '[ERROR]' })
   printEnd()
