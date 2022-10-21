@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import USB from './lib/escpos-usb.mjs'
 import print from './src/print.mjs'
 import { PRINT_TIME } from './src/constants.mjs'
