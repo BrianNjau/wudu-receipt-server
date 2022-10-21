@@ -41,7 +41,7 @@ try {
    * @public
    * @typedef Body
    * @property {(import('./src/utils.mjs').ToPrintBillContent)[]} toPrintBillContent
-   * @property {(import('./src/utils.mjs').ToPrintOrderContent)[] toPrintOrderContent
+   * @property {(import('./src/utils.mjs').ToPrintOrderContent)[]} toPrintOrderContent
    */
 
   /**
@@ -84,10 +84,7 @@ try {
             return res.json({ resCode: '0', resMsg, session })
           }
 
-          // TODO: calc printTime based on ip/vid:pid
           const printTimeMap = {}
-          // const printTime = (!toPrintBillContent ? 0 : toPrintBillContent.length + !toPrintOrderContent ? 0 : toPrintOrderContent.length) * PRINT_TIME
-          // const waitTime = printTime > WRITE_TIME ? WRITE_TIME : printTime - WRITE_TIME
           const toPrintList = [...(toPrintBillContent || []), ...(toPrintOrderContent || [])]
           toPrintList.forEach(({ ip, vid }) => {
             if (ip) {
