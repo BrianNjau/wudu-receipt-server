@@ -44,6 +44,9 @@ export const log = (str, { prefix = '', details = '', skip } = {}) => {
   if (!skip) console.log(`[${time}] ${prefix}${str}`)
 }
 
+export const done = (str, { details = '', skip } = {}) => log(str, { prefix: '[SUCCESS]', details, skip })
+export const fail = (str, { details = '', skip } = {}) => log(str, { prefix: '[ERROR]', details, skip })
+
 /**
  * Transform number-like string to hex output
  * @param {string} str Number-like string to hex output
@@ -241,7 +244,7 @@ export const buildOrder = (orderCustomContent) => {
 
 /**
  * Sleep for n ms
- * @param {number} ms 
+ * @param {number} ms
  * @returns {Promise<NodeJS.Timeout>}
  */
 export function sleep(ms) {
