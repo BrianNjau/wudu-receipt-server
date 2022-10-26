@@ -1,14 +1,14 @@
 {
   "name": "receipt-server",
   "author": "Ynewtime",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "index.mjs",
   "bin": {
-    "receipt-server": "index.mjs"
+    "receipt-server": "bin/index.js"
   },
   "scripts": {
     "dev": "nodemon -w index.mjs -w test.mjs -w src -w lib index.mjs",
-    "start": "node index.mjs"
+    "start": "node --no-warnings index.mjs"
   },
   "dependencies": {
     "cors": "^2.8.5",
