@@ -231,7 +231,7 @@ ${normalizedFoodList.map(({ name, modifier, num, price }) => `|${name} |\n${modi
 }
 
 /**
- * Build bill print content
+ * Build order print content
  * @param {OrderCustomContent} orderCustomContent
  */
 export const buildOrder = (orderCustomContent) => {
@@ -258,6 +258,26 @@ export const buildOrder = (orderCustomContent) => {
   const receiverNameMd = receiverName ? `Receiver: |${escapeChars(receiverName)}\n` : ''
   const remarkMd = remark ? `Remark: |${remark}\n` : ''
   const FOOTER = `{w:10,*}\n${statementIDMd}${attendantMd}${createdDateMd}${receiverNameMd}${remarkMd}{w:auto}\n-\n`
+
+  return SUB_HEADER + FOOD_TABLE + FOOTER
+}
+
+/**
+ * Build refund print content
+ * @param {RefundContent} refundContent
+ */
+export const buildRefund = (refundContent) => {
+  const { tableCode, food, attendant, createdDate } = refundContent
+
+  let SUB_HEADER = ''
+  // Onsite - 堂食
+  SUB_HEADER = `"^[REFUND]TABLE ${tableCode}\n-\n`
+
+  const FOOD_TABLE = `{w:6,*}\n|Qty |Name |\n-\n|^^^${food.num} |^^^[REFUND]${food.name} |${food.modifier ? `\n||^^^[${food.modifier}] |` : ''}\n{w:auto}\n-\n`
+
+  const attendantMd = attendant ? `Attendant: |${escapeChars(attendant)}\n` : ''
+  const createdDateMd = createdDate ? `Date Time: |${createdDate}\n` : ''
+  const FOOTER = `{w:10,*}\n${attendantMd}${createdDateMd}{w:auto}\n-\n`
 
   return SUB_HEADER + FOOD_TABLE + FOOTER
 }
