@@ -1,7 +1,7 @@
 {
   "name": "receipt-server",
   "author": "Ynewtime",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "main": "index.mjs",
   "bin": {
     "receipt-server": "bin/index.js"
@@ -11,12 +11,12 @@
     "start": "node --no-warnings index.mjs"
   },
   "dependencies": {
+    "chokidar": "^3.5.3",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "iconv-lite": "^0.6.3",
     "numeral": "^2.0.6",
     "ping": "^0.4.2",
-    "pngjs": "^6.0.0",
     "usb": "^2.5.2"
   },
   "devDependencies": {

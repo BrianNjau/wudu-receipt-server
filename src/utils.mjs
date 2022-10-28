@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import numeral from 'numeral'
 
 import { PRICE } from './constants.mjs'
@@ -136,6 +137,15 @@ export const f = (str) => numeral(str).format(PRICE)
 
 /**
  * @public
+ * @typedef RefundContent
+ * @property {string} createdDate
+ * @property {Food} food
+ * @property {string} attendant Onsite
+ * @property {string} tableCode Onsite
+ */
+
+/**
+ * @public
  * @typedef ToPrintBillContent
  * @property {BillCustomContent} customerContent
  * @property {"Network" | "USB"} hardwareType
@@ -148,6 +158,16 @@ export const f = (str) => numeral(str).format(PRICE)
  * @public
  * @typedef ToPrintOrderContent
  * @property {OrderCustomContent[]} chefContent
+ * @property {"Network" | "USB"} hardwareType
+ * @property {string} [ip]
+ * @property {string} [vid]
+ * @property {string} [pid]
+ */
+
+/**
+ * @public
+ * @typedef ToPrintRefundContent
+ * @property {RefundContent} refundContent
  * @property {"Network" | "USB"} hardwareType
  * @property {string} [ip]
  * @property {string} [vid]
@@ -249,4 +269,10 @@ export const buildOrder = (orderCustomContent) => {
  */
 export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+export function getPackageJson() {
+  const currentPath = path.dirname(fileURLToPath(import.meta.url))
+  const packageJsonPath = path.join(currentPath, '../package.json')
+  return JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
 }

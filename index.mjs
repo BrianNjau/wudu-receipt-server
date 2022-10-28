@@ -3,8 +3,7 @@
 import USB from './lib/escpos-usb.mjs'
 import print from './src/print.mjs'
 import { PRINT_TIME } from './src/constants.mjs'
-import { log, done, fail, toHex, buildBill, buildOrder, sleep } from './src/utils.mjs'
-import packageJson from './package.json' assert { type: 'json' }
+import { log, done, fail, toHex, buildBill, buildOrder, sleep, getPackageJson } from './src/utils.mjs'
 
 import fs from 'node:fs'
 import net from 'node:net'
@@ -12,6 +11,9 @@ import path from 'node:path'
 import express from 'express'
 import cors from 'cors'
 import ping from 'ping'
+import chokidar from 'chokidar'
+
+const { name, version } = getPackageJson()
 
 const sessionPath = path.join(process.cwd(), './session.log')
 let taskList = []
@@ -265,7 +267,7 @@ try {
         go(session, req.body, res)
       } else {
         taskList.push(session)
-        const watcher = fs.watch(sessionPath, () => {
+        const watcher = chokidar.watch(sessionPath).on('all', () => {
           if (readSession() === session) {
             go(session, req.body, res)
             watcher.close()
@@ -286,7 +288,7 @@ try {
    * Lisenter funtioner on app start
    */
   function onListen() {
-    log(`////////// Receipt Server ${packageJson.version} Started //////////`)
+    log(`////////// ${name} ${version} Started //////////`)
 
     // Print out USB printers - 寻找本地的USB打印机
     const printers = findPrinter()
