@@ -2,7 +2,7 @@
 
 import USB from './lib/escpos-usb.mjs'
 import print from './src/print.mjs'
-import { PRINT_TIME } from './src/constants.mjs'
+import { OTHER_BRAND, PRINT_TIME } from './src/constants.mjs'
 import { log, done, fail, toHex, buildBill, buildOrder, buildRefund, sleep, getPackageJson } from './src/utils.mjs'
 
 import fs from 'node:fs'
@@ -74,23 +74,30 @@ try {
           })
         }
       }
+      /**
+       * Handle log/session clear/res send
+       * @param {'0' | '1'} code 0-success, 1-fail
+       * @param {string} msg Error msg
+       * @param {Function} customNext
+       */
+      const handler = (code, msg, customNext) => {
+        if (code === '0') done(`Session:${session}|${msg}`)
+        else fail(`Session:${session}|${msg}`)
+        if (customNext) customNext()
+        else next()
+        send(code, msg)
+      }
 
       const printers = findPrinter()
       const hasUsbPrinters = !!printers.length
 
       if (!('toPrintBillContent' in body) && !('toPrintOrderContent' in body) && !('toPrintRefundContent' in body)) {
-        const msg = `Session:${session}|Print failed: 'toPrintBillContent', 'toPrintOrderContent' and 'toPrintRefundContent' not in the body.`
-        fail(msg)
-        next()
-        return send('1', msg)
+        return handler('1', `Print failed: 'toPrintBillContent', 'toPrintOrderContent' and 'toPrintRefundContent' not in the body.`)
       }
 
       const { toPrintBillContent, toPrintOrderContent, toPrintRefundContent } = body
       if (!(toPrintBillContent && toPrintBillContent.length) && !(toPrintOrderContent && toPrintOrderContent.length) && !(toPrintRefundContent && toPrintRefundContent.length)) {
-        const msg = `Session:${session}|Print failed: 'toPrintBillContent', 'toPrintOrderContent' and 'toPrintRefundContent' empty.`
-        fail(msg)
-        next()
-        return send('1', msg)
+        return handler('1', `Print failed: 'toPrintBillContent', 'toPrintOrderContent' and 'toPrintRefundContent' empty.`)
       }
 
       const printTimeMap = {}
@@ -115,75 +122,40 @@ try {
             const billType = isDelivery ? 'Delivery' : isTakeaway ? 'Takeaway' : 'Onsite'
             const billInfo = [statementID, tableCode || takeawayNo || receiverName, attendant, remark].join(':')
             if (hardwareType === 'Network') {
-              if (!ip) {
-                const msg = `Session:${session}|Print bill:${billType}|${billInfo} to Network failed: ip empty.`
-                fail(msg)
-                next()
-                send('1', msg)
-              } else if (net.isIP(ip) !== 4) {
-                const msg = `Session:${session}|Print bill:${billType}|${billInfo} to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`
-                fail(msg)
-                next()
-                send('1', msg)
-              } else {
+              if (!ip) handler('1', `Print bill:${billType}|${billInfo} to Network failed: ip empty.`)
+              else if (net.isIP(ip) !== 4) handler('1', `Print bill:${billType}|${billInfo} to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
+              else {
                 ping.sys.probe(ip, async function (isAlive) {
-                  if (!isAlive) {
-                    const msg = `Session:${session}|Print bill:${billType}|${billInfo} to Network failed: ip:${ip} failed to connect.`
-                    fail(msg)
-                    send('1', msg)
-                  } else {
+                  if (!isAlive) handler('1', `Print bill:${billType}|${billInfo} to Network failed: ip:${ip} failed to connect.`)
+                  else {
                     await print(buildBill(customerContent), `-d ${ip} -l zh`)
-                    const msg = `Session:${session}|Print bill:${billType}|${billInfo} to Network:${ip} success.`
-                    done(msg)
-                    send('0', msg)
+                    handler('0', `Print bill:${billType}|${billInfo} to Network:${ip} success.`)
                   }
-                  next()
                 })
               }
             } else if (hardwareType === 'USB') {
-              if (!hasUsbPrinters) {
-                const msg = `Session:${session}|Print bill:${billType}|${billInfo} to USB:${vid}|${pid} failed: USB Printers Not Found`
-                fail(msg)
-                next()
-                send('1', msg)
-              } else {
+              if (!hasUsbPrinters) handler('1', `Print bill:${billType}|${billInfo} to USB:${vid}|${pid} failed: USB Printers Not Found`)
+              else {
                 const commands = await print(buildBill(customerContent), `-l zh`)
                 const device = new USB(vid, pid)
                 device.open((err) => {
-                  if (err) {
-                    const msg = `Session:${session}|Print bill:${billType}|${billInfo} to USB:${vid}|${pid} failed|USB device open failed: ${err}.`
-                    fail(msg)
-                    next()
-                    send('1', msg)
-                  } else {
+                  if (err) handler('1', `Print bill:${billType}|${billInfo} to USB:${vid}|${pid} failed|USB device open failed: ${err}.`)
+                  else {
                     device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
-                      if (writeErr) {
-                        const msg = `Session:${session}|Print bill:${billType}|${billInfo} to USB:${vid}|${pid} failed|USB device write failed: ${writeErr}.`
-                        fail(msg)
-                        send('1', msg)
-                      } else {
+                      if (writeErr) handler('1', `Print bill:${billType}|${billInfo} to USB:${vid}|${pid} failed|USB device write failed: ${writeErr}.`, () => device.close(next))
+                      else {
                         const waitTime = printTimeMap[pid]
                         await sleep(waitTime)
-                        const msg = `Session:${session}|Print bill:${billType}|${billInfo} to USB:${vid}|${pid} success.`
-                        done(msg)
-                        send('0', msg)
+                        handler('0', `Print bill:${billType}|${billInfo} to USB:${vid}|${pid} success.`, () => device.close(next))
                       }
-                      device.close(next)
                     })
                   }
                 })
               }
-            } else {
-              const msg = `Session:${session}|Print bill:${billType}|${billInfo} failed: Unsupported hardwareType: ${hardwareType}`
-              fail(msg)
-              next()
-              send('1', msg)
-            }
+            } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print bill:${billType}|${billInfo}: ignore hardwareType ${hardwareType}`)
+            else handler('1', `Print bill:${billType}|${billInfo} failed: Unsupported hardwareType: ${hardwareType}`)
           } catch (err) {
-            const msg = `Session:${session}|Print bill failed: ${err.message}`
-            fail(msg)
-            next()
-            send('1', msg)
+            handler('1', `Print bill failed: ${err.message}`)
           }
         }
       }
@@ -192,90 +164,48 @@ try {
         for (const record of toPrintOrderContent) {
           try {
             const { hardwareType, ip, vid, pid, chefContent } = record
-            if (!chefContent.length) {
-              const msg = `Session:${session}|chefContent empty.`
-              fail(msg)
-              next()
-              send('1', msg)
-            } else {
+            if (!chefContent.length) handler('1', `chefContent empty.`)
+            else {
               const { tableCode, takeawayNo, statementID, attendant, remark } = chefContent[0]
               const orderInfo = ['Order Info', chefContent.length, statementID, tableCode || takeawayNo || `Delivery`, attendant, remark, chefContent.map(({ food }) => `${food.name} x ${food.num}`).join('|')].join(':')
+              log(orderInfo)
               if (hardwareType === 'Network') {
-                if (!ip) {
-                  const msg = `Session:${session}|Print order to Network failed: ip empty.`
-                  fail(msg)
-                  next()
-                  send('1', msg)
-                } else if (net.isIP(ip) !== 4) {
-                  const msg = `Session:${session}|Print order to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`
-                  fail(msg)
-                  next()
-                  send('1', msg)
-                } else {
+                if (!ip) handler('1', `Print order to Network failed: ip empty.`)
+                else if (net.isIP(ip) !== 4) handler('1', `Print order to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
+                else {
                   ping.sys.probe(ip, async function (isAlive) {
-                    if (!isAlive) {
-                      const msg = `Session:${session}|Print order to Network failed: ip:${ip} failed to connect.`
-                      fail(msg)
-                      send('1', msg)
-                    } else {
+                    if (!isAlive) handler('1', `Print order to Network failed: ip:${ip} failed to connect.`)
+                    else {
                       const commands = chefContent.map((orderCustomContent) => buildOrder(orderCustomContent)).join('=\n')
                       await print(commands, `-d ${ip} -l zh`)
-                      const msg = `Session:${session}|Print order to Network:${ip} success.`
-                      done(msg)
-                      log(orderInfo)
-                      send('0', msg)
+                      handler('0', `Print order to Network:${ip} success.`)
                     }
-                    next()
                   })
                 }
               } else if (hardwareType === 'USB') {
-                if (!hasUsbPrinters) {
-                  const msg = `Session:${session}|Print order to USB:${vid}|${pid} failed: USB Printers Not Found`
-                  fail(msg)
-                  log(orderInfo)
-                  next()
-                  send('1', msg)
-                } else {
+                if (!hasUsbPrinters) handler('1', `Print order to USB:${vid}|${pid} failed: USB Printers Not Found`)
+                else {
                   const commands = await print(chefContent.map((orderCustomContent) => buildOrder(orderCustomContent)).join('=\n'), `-l zh`)
                   const device = new USB(vid, pid)
                   device.open((err) => {
-                    if (err) {
-                      const msg = `Session:${session}|Print order to USB:${vid}|${pid} failed: USB device open failed: ${err}`
-                      fail(msg)
-                      log(orderInfo)
-                      next()
-                      send('1', msg)
-                    } else {
+                    if (err) handler('1', `Print order to USB:${vid}|${pid} failed: USB device open failed: ${err}`)
+                    else {
                       device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
-                        if (writeErr) {
-                          fail(`Session:${session}|Print order to USB:${vid}|${pid} failed: USB device write failed: ${writeErr}`)
-                          log(orderInfo)
-                        } else {
+                        if (writeErr) handler('1', `Print order to USB:${vid}|${pid} failed: USB device write failed: ${writeErr}`, () => device.close(next))
+                        else {
                           const waitTime = printTimeMap[pid]
                           await sleep(waitTime)
-                          const msg = `Session:${session}|Print order to USB:${vid}|${pid} success.`
-                          done(msg)
-                          log(orderInfo)
-                          send('0', msg)
+                          handler('0', `Print order to USB:${vid}|${pid} success.`, () => device.close(next))
                         }
-                        device.close(next)
                       })
                     }
                   })
                 }
-              } else {
-                const msg = `Session:${session}|Print order to USB:${vid}|${pid} failed: Unsupported hardwareType: ${hardwareType}`
-                fail(msg)
-                log(orderInfo)
-                next()
-                send('1', msg)
-              }
+              } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print order to USB:${vid}|${pid}: ignore hardwareType ${hardwareType}`)
+              else handler('1', `Print order to USB:${vid}|${pid} failed: Unsupported hardwareType: ${hardwareType}`)
             }
           } catch (err) {
-            const msg = `Session:${session}|Print order failed: ${err.message}`
-            fail(msg)
-            next()
-            send('1', msg)
+            handler('1', `Print order failed: ${err.message}`)
           }
         }
       }
@@ -285,80 +215,46 @@ try {
           try {
             const { hardwareType, ip, vid, pid, refundContent } = record
             if (hardwareType === 'Network') {
-              if (!ip) {
-                const msg = `Session:${session}|Print refund to Network failed: ip empty.`
-                fail(msg)
-                next()
-                send('1', msg)
-              } else if (net.isIP(ip) !== 4) {
-                const msg = `Session:${session}|Print refund to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`
-                fail(msg)
-                next()
-                send('1', msg)
+              if (!ip) handler('1', `Print refund to Network failed: ip empty.`)
+              else if (net.isIP(ip) !== 4) handler('1', `Print refund to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
+              else {
+                ping.sys.probe(ip, async function (isAlive) {
+                  if (!isAlive) handler('1', `Print refund to Network failed: ip:${ip} failed to connect.`)
+                  else {
+                    await print(buildRefund(refundContent), `-d ${ip} -l zh`)
+                    handler('0', `Print refund to Network:${ip} success.`)
+                  }
+                })
               }
-              ping.sys.probe(ip, async function (isAlive) {
-                if (!isAlive) {
-                  const msg = `Session:${session}|Print refund to Network failed: ip:${ip} failed to connect.`
-                  fail(msg)
-                  send('1', msg)
-                } else {
-                  await print(buildRefund(refundContent), `-d ${ip} -l zh`)
-                  const msg = `Session:${session}|Print refund to Network:${ip} success.`
-                  done(msg)
-                  send('0', msg)
-                }
-                next()
-              })
             } else if (hardwareType === 'USB') {
-              if (!hasUsbPrinters) {
-                const msg = `Session:${session}|Print refund to USB:${vid}|${pid} failed: USB Printers Not Found`
-                fail(msg)
-                next()
-                send('1', msg)
-              } else {
+              if (!hasUsbPrinters) handler('1', `Print refund to USB:${vid}|${pid} failed: USB Printers Not Found`)
+              else {
                 const commands = await print(buildRefund(refundContent), `-l zh`)
                 const device = new USB(vid, pid)
                 device.open((err) => {
-                  if (err) {
-                    const msg = `Session:${session}|Print refund to USB:${vid}|${pid} failed|USB device open failed: ${err}.`
-                    fail(msg)
-                    next()
-                    send('1', msg)
-                  } else {
+                  if (err) handler('1', `Print refund to USB:${vid}|${pid} failed|USB device open failed: ${err}.`)
+                  else {
                     device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
-                      if (writeErr) {
-                        const msg = `Session:${session}|Print refund to USB:${vid}|${pid} failed|USB device write failed: ${writeErr}.`
-                        fail(msg)
-                        send('1', msg)
-                      } else {
+                      if (writeErr) handler('1', `Print refund to USB:${vid}|${pid} failed|USB device write failed: ${writeErr}.`, () => device.close(next))
+                      else {
                         const waitTime = printTimeMap[pid]
                         await sleep(waitTime)
-                        const msg = `Session:${session}|Print refund to USB:${vid}|${pid} success.`
-                        done(msg)
-                        send('0', msg)
+                        handler('0', `Print refund to USB:${vid}|${pid} failed|USB device write failed: ${writeErr}.`, () => device.close(next))
                       }
-                      device.close(next)
                     })
                   }
                 })
               }
-            } else {
-              const msg = `Session:${session}|Print refund failed: Unsupported hardwareType: ${hardwareType}`
-              fail(msg)
-              next()
-              send('1', msg)
-            }
+            } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print refund: ignore hardwareType ${hardwareType}`)
+            else handler('1', `Print refund failed: Unsupported hardwareType: ${hardwareType}`)
           } catch (err) {
-            const msg = `Session:${session}|Print refund failed: ${err.message}`
-            fail(msg)
-            next()
-            send('1', msg)
+            handler('1', `Print refund failed: ${err.message}`)
           }
         }
       }
     } catch (err) {
       const msg = `Print failed: ${err.message}.`
-      fail(msg)
+      fail(`Session:${session}|${msg}`)
       next()
       if (!res.headersSent) {
         res.json({
@@ -391,7 +287,7 @@ try {
       }
     } catch (err) {
       const msg = `Print failed: ${err.message}.`
-      fail(msg)
+      fail(`Session:${session}|${msg}`)
       next()
       if (!res.headersSent) {
         res.json({
