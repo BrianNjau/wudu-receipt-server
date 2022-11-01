@@ -1,7 +1,7 @@
 import USB from './lib/escpos-usb.mjs'
 import print from './src/print.mjs'
 import { PRINT_TIME } from './src/constants.mjs'
-import { log, toHex, buildBill, buildOrder, sleep } from './src/utils.mjs'
+import { log, toHex, buildBill, buildOrder, sleep, buildRevenueAnalysis } from './src/utils.mjs'
 
 import fs from 'node:fs'
 import net from 'node:net'
@@ -34,6 +34,8 @@ try {
 
   const app = express()
   app.use(cors())
+
+ 
   app.use(express.json())
   app.use(express.urlencoded({ extended: true }))
 
@@ -41,7 +43,8 @@ try {
    * @public
    * @typedef Body
    * @property {(import('./src/utils.mjs').ToPrintBillContent)[]} toPrintBillContent
-   * @property {(import('./src/utils.mjs').ToPrintOrderContent)[] toPrintOrderContent
+   * @property {(import('./src/utils.mjs').ToPrintOrderContent)[]} toPrintOrderContent
+   * @property {(import('./src/utils.mjs').ToPrintRevenueAnalysisContent)} toPrintRevenueAnalysisContent
    */
 
   /**
@@ -67,17 +70,17 @@ try {
           const printers = findPrinter()
           const hasUsbPrinters = !!printers.length
 
-          if (!('toPrintBillContent' in body) && !('toPrintOrderContent' in body)) {
-            const resMsg = `Session:${session}|Print failed: 'toPrintBillContent' and 'toPrintOrderContent' not in the body.`
+          if (!('toPrintBillContent' in body) && !('toPrintOrderContent' in body) && !('toPrintRevenueAnalysisContent' in body)) {
+            const resMsg = `Session:${session}|Print failed: 'toPrintBillContent' and 'toPrintOrderContent' and 'toPrintRevenueAnalysisContent' not in the body.`
             log(resMsg, {
               prefix: '[ERROR]',
             })
             return res.json({ resCode: '1', resMsg, session })
           }
 
-          const { toPrintBillContent, toPrintOrderContent } = body
-          if (!(toPrintBillContent && toPrintBillContent.length) && !(toPrintOrderContent && toPrintOrderContent.length)) {
-            const resMsg = `Session:${session}|Print failed: 'toPrintBillContent' and 'toPrintOrderContent' empty.`
+          const { toPrintBillContent, toPrintOrderContent, toPrintRevenueAnalysisContent } = body
+          if (!(toPrintBillContent && toPrintBillContent.length) && !(toPrintOrderContent && toPrintOrderContent.length) && !(toPrintRevenueAnalysisContent && toPrintRevenueAnalysisContent.length)) {
+            const resMsg = `Session:${session}|Print failed: 'toPrintBillContent' and 'toPrintOrderContent' and 'toPrintRevenueAnalysisContent' empty.`
             log(resMsg, { prefix: '[ERROR]' })
             return res.json({ resCode: '0', resMsg, session })
           }
@@ -86,7 +89,7 @@ try {
           const printTimeMap = {}
           // const printTime = (!toPrintBillContent ? 0 : toPrintBillContent.length + !toPrintOrderContent ? 0 : toPrintOrderContent.length) * PRINT_TIME
           // const waitTime = printTime > WRITE_TIME ? WRITE_TIME : printTime - WRITE_TIME
-          const toPrintList = [...(toPrintBillContent || []), ...(toPrintOrderContent || [])]
+          const toPrintList = [...(toPrintBillContent || []), ...(toPrintOrderContent || []), ...(toPrintRevenueAnalysisContent|| [])]
           toPrintList.forEach(({ ip, vid }) => {
             if (ip) {
               if (ip in printTimeMap) {
@@ -103,6 +106,51 @@ try {
             }
           })
 
+          if (toPrintRevenueAnalysisContent && toPrintRevenueAnalysisContent.length) {
+            for (const record of toPrintRevenueAnalysisContent) {
+              try {
+                const { hardwareType, ip, vid, pid, revenueAnalysis } = record
+                const { startDate, endDate, shopName } = revenueAnalysis
+                const receiptType = 'Revenue_Analysis'
+                const billInfo = [startDate, endDate, shopName].join(':')
+                if (hardwareType === 'Network') {
+                  if (!ip) return errList.push(`Session:${session}|Print bill:${receiptType}|${billInfo} to Network failed: ip empty.`)
+                  if (net.isIP(ip) !== 4) return errList.push(`Session:${session}|Print bill:${receiptType}|${billInfo} to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
+                  await print(buildRevenueAnalysis(revenueAnalysis), `-d ${ip} -l zh`)
+                  const waitTime = printTimeMap[ip]
+                  await sleep(waitTime)
+                  printEnd()
+                  successList.push(`Session:${session}|Print bill:${receiptType}|${billInfo} to Network:${ip} success.`)
+                } else if (hardwareType === 'USB') {
+                  if (!hasUsbPrinters) {
+                    errList.push(`Session:${session}|Print bill:${receiptType}|${billInfo} to USB:${vid}|${pid} failed: USB Printers Not Found`)
+                  } else {
+                    const commands = await print(buildRevenueAnalysis(revenueAnalysis), `-l zh`)
+                    const device = new USB(vid, pid)
+                    device.open((err) => {
+                      if (err) {
+                        errList.push(`Session:${session}|Print bill:${receiptType}|${billInfo} to USB:${vid}|${pid} failed|USB device open failed: ${err}.`)
+                      } else {
+                        device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
+                          if (writeErr) {
+                            errList.push(`Session:${session}|Print bill:${receiptType}|${billInfo} to USB:${vid}|${pid} failed|USB device write failed: ${writeErr}.`)
+                          }
+                          const waitTime = printTimeMap[vid]
+                          await sleep(waitTime)
+                          device.close(printEnd)
+                        })
+                      }
+                    })
+                    successList.push(`Session:${session}|Print bill:${receiptType}|${billInfo} to USB:${vid}|${pid} success.`)
+                  }
+                } else {
+                  errList.push(`Session:${session}|Print bill:${receiptType}|${billInfo} failed: Unsupported hardwareType: ${hardwareType}`)
+                }
+              } catch (err) {
+                errList.push(`Session:${session}|Print Revenue Analysis failed:${err}`)
+              }
+            }
+          }
           if (toPrintBillContent && toPrintBillContent.length) {
             for (const record of toPrintBillContent) {
               try {
