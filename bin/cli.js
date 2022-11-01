@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-const fs = require('fs')
-const stream = require('stream/promises')
+const fs = require('node:fs')
+const stream = require('node:stream/promises')
 const receiptio = require('../lib/receiptio')
 
 ;(async (argv) => {

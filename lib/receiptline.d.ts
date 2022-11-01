@@ -111,6 +111,34 @@ declare module 'receiptline' {
     height: number
     /** human readable interpretation */
     hri: boolean
+    /** quiet zone for barcode generator */
+    quietZone?: boolean
+  }
+  /**
+   * Barcode form
+   */
+  type BarcodeForm = {
+    /** barcode length */
+    length: number
+    /** barcode height */
+    height: number
+    /** widths (quiet zone, bar, space, ... , bar, quiet zone) */
+    widths: number[]
+    /** human readable interpretation */
+    hri: boolean
+    /** barcode text */
+    text: string
+  }
+  /**
+   * Barcode generator
+   */
+  interface BarcodeGenerator {
+    /**
+     * Generate barcode.
+     * @param {Barcode} symbol barcode information (data, type, width, height, hri, quietZone)
+     * @returns {BarcodeForm} barcode form
+     */
+    generate(symbol: Barcode): BarcodeForm
   }
   /**
    * Base command set
@@ -264,6 +292,13 @@ declare module 'receiptline' {
     /**
      * Print image.
      * @param {string} image image data (base64 png format)
+     * @returns {string} commands
+     */
+    image(image: string): string
+    /**
+     * Print image.
+     * @deprecated since v1.12.0
+     * @param {string} image image data (base64 png format)
      * @param {number} align line alignment (0: left, 1: center, 2: right)
      * @param {number} left left margin (unit: characters)
      * @param {number} width print area (unit: characters)
@@ -308,4 +343,9 @@ declare module 'receiptline' {
    * @type {Commands} commands
    */
   export const commands: Commands
+  /**
+   * Barcode generator.
+   * @type {BarcodeGenerator} barcode generator
+   */
+  export const barcode: BarcodeGenerator
 }

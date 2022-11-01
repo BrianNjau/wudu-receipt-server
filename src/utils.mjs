@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import numeral from 'numeral'
 
 import { PRICE } from './constants.mjs'
@@ -43,6 +44,9 @@ export const log = (str, { prefix = '', details = '', skip } = {}) => {
   fs.appendFileSync(logPath, `[${time}] ${prefix}${JSON.stringify(`${str}${details && `|${details}`}`)}\n`)
   if (!skip) console.log(`[${time}] ${prefix}${str}`)
 }
+
+export const done = (str, { details = '', skip } = {}) => log(str, { prefix: '[SUCCESS]', details, skip })
+export const fail = (str, { details = '', skip } = {}) => log(str, { prefix: '[ERROR]', details, skip })
 
 /**
  * Transform number-like string to hex output
@@ -156,6 +160,7 @@ export const f = (str) => numeral(str).format(PRICE)
 
 /**
  * @public
+<<<<<<< HEAD
  * @typedef ToPrintRevenueAnalysisContent
  * @property {RevenueAnalysisContent} revenueAnalysis
  * @property {"Network" | "USB"} hardwareType
@@ -165,6 +170,15 @@ export const f = (str) => numeral(str).format(PRICE)
  */
 
 
+=======
+ * @typedef RefundContent
+ * @property {string} createdDate
+ * @property {Food} food
+ * @property {string} attendant Onsite
+ * @property {string} tableCode Onsite
+ */
+
+>>>>>>> 0220cc71d16ec90e9b4e8e4490b6226b756f5d26
 /**
  * @public
  * @typedef ToPrintBillContent
@@ -186,6 +200,7 @@ export const f = (str) => numeral(str).format(PRICE)
  */
 
 /**
+<<<<<<< HEAD
  * Build receipt revenue analysis content
  * @param {RevenueAnalysisContent} revenueAnalysisContent
  */
@@ -241,6 +256,16 @@ export const f = (str) => numeral(str).format(PRICE)
 }
 
 
+=======
+ * @public
+ * @typedef ToPrintRefundContent
+ * @property {RefundContent} refundContent
+ * @property {"Network" | "USB"} hardwareType
+ * @property {string} [ip]
+ * @property {string} [vid]
+ * @property {string} [pid]
+ */
+>>>>>>> 0220cc71d16ec90e9b4e8e4490b6226b756f5d26
 
 /**
  * Build bill print content
@@ -299,7 +324,7 @@ ${normalizedFoodList.map(({ name, modifier, num, price }) => `|${name} |\n${modi
 }
 
 /**
- * Build bill print content
+ * Build order print content
  * @param {OrderCustomContent} orderCustomContent
  */
 export const buildOrder = (orderCustomContent) => {
@@ -331,10 +356,36 @@ export const buildOrder = (orderCustomContent) => {
 }
 
 /**
+ * Build refund print content
+ * @param {RefundContent} refundContent
+ */
+export const buildRefund = (refundContent) => {
+  const { tableCode, food, attendant, createdDate } = refundContent
+
+  let SUB_HEADER = ''
+  // Onsite - 堂食
+  SUB_HEADER = `"^[REFUND]TABLE ${tableCode}\n-\n`
+
+  const FOOD_TABLE = `{w:6,*}\n|Qty |Name |\n-\n|^^^${food.num} |^^^[REFUND]${food.name} |${food.modifier ? `\n||^^^[${food.modifier}] |` : ''}\n{w:auto}\n-\n`
+
+  const attendantMd = attendant ? `Attendant: |${escapeChars(attendant)}\n` : ''
+  const createdDateMd = createdDate ? `Date Time: |${createdDate}\n` : ''
+  const FOOTER = `{w:10,*}\n${attendantMd}${createdDateMd}{w:auto}\n-\n`
+
+  return SUB_HEADER + FOOD_TABLE + FOOTER
+}
+
+/**
  * Sleep for n ms
- * @param {number} ms 
+ * @param {number} ms
  * @returns {Promise<NodeJS.Timeout>}
  */
 export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+export function getPackageJson() {
+  const currentPath = path.dirname(fileURLToPath(import.meta.url))
+  const packageJsonPath = path.join(currentPath, '../package.json')
+  return JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
 }
