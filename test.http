@@ -26,8 +26,8 @@ Content-Type: application/json
         "totalPrice": "3,000"
       },
       "hardwareType": "USB",
-      "pid": "0x0D3A",
-      "vid": "0x0369"
+      "vid": "0x1fc9",
+      "pid": "0x2016"
     }
   ]
 }
@@ -38,21 +38,110 @@ Content-Type: application/json
 POST http://localhost:2000/print
 Content-Type: application/json
 
-{"toPrintBillContent":[{"customerContent":{"address":"Huawei Technologies Rep. Office Hq,Mugumo Road,Masiwa,Kilimani,Nairobi","attendant":"captains_terrace","createdDate":"2022-10-26 17:58:46","foodList":[{"modifier":"","name":"Cosmopolitan","num":"1","price":"600"},{"modifier":"","name":"Cosmopolitan","num":"1","price":"600"}],"isDelivery":false,"logo":"https://obs-scanorder.obs.af-south-1.myhuaweicloud.com/10gg000000r8zDtiJHe4%2FImage%2F225879a1-40b7-4ff6-b5b1-2ae48af40d54.jpg","remark":"","shopName":"Captains","statementID":"","tableCode":"A01","totalPrice":"1,200"},"hardwareType":"Network","ip":"192.168.0.219"}]}
+{
+  "toPrintBillContent": [
+    {
+      "customerContent": {
+        "address": "Huawei Technologies Rep. Office Hq,Mugumo Road,Masiwa,Kilimani,Nairobi",
+        "attendant": "captains_terrace",
+        "createdDate": "2022-10-26 17:58:46",
+        "foodList": [
+          {
+            "modifier": "",
+            "name": "Cosmopolitan",
+            "num": "1",
+            "price": "600"
+          },
+          { "modifier": "", "name": "Cosmopolitan", "num": "1", "price": "600" }
+        ],
+        "isDelivery": false,
+        "logo": "https://obs-scanorder.obs.af-south-1.myhuaweicloud.com/10gg000000r8zDtiJHe4%2FImage%2F225879a1-40b7-4ff6-b5b1-2ae48af40d54.jpg",
+        "remark": "",
+        "shopName": "Captains",
+        "statementID": "",
+        "tableCode": "A01",
+        "totalPrice": "1,200"
+      },
+      "hardwareType": "Network",
+      "ip": "192.168.0.219"
+    }
+  ]
+}
 
 ###
 
-
-# @name RevenueAnalysisPrintToNetwork
-
+# @name RevenueAnalysisPrintToUSB
 POST http://localhost:2000/print
 Content-Type: application/json
 
-{"toPrintRevenueAnalysisContent":[{"hardwareType":"Network","ip":"192.168.0.219","revenueAnalysis":{"address":"the People's Republic of China,","endDate":"2022-11-01T20:00:00+03:00","logo":"https://obs-ap1qa-kbzcomerce.obs.cn-north-1.myhuaweicloud.com/10gg000000wvyOka41lw%2FImage%2F559a2794-8029-487e-abc6-491dd4705d5d.png","shopName":"Pizza Hut Yuelu Store","startDate":"2022-10-16T00:00:00+03:00","totalAmount":6825,"totalCashPaymentAmount":6825,"totalCreditCardAmount":0,"totalCreditTransactionAmount":0,"totalDeliveryAmount":0,"totalDeliveryOrders":0,"totalDiningInAmount":0,"totalDiningInOrders":0,"totalOnlinePaymentAmount":0,"totalOrders":1,"totalPersonalTransferAmount":0,"totalStaffFreeAmount":0,"totalTakeawayAmount":0,"totalTakeawayOrders":0}}]}
+{
+  "toPrintRevenueAnalysisContent": [
+    {
+      "hardwareType": "USB",
+      "vid": "0x1fc9",
+      "pid": "0x2016",
+      "revenueAnalysis": {
+        "address": "the People's Republic of China,",
+        "endDate": "2022-11-01T20:00:00+03:00",
+        "logo": "https://obs-ap1qa-kbzcomerce.obs.cn-north-1.myhuaweicloud.com/10gg000000wvyOka41lw%2FImage%2F559a2794-8029-487e-abc6-491dd4705d5d.png",
+        "shopName": "Pizza Hut Yuelu Store",
+        "startDate": "2022-10-16T00:00:00+03:00",
+        "totalAmount": 6825,
+        "totalCashPaymentAmount": 6825,
+        "totalCreditCardAmount": 0,
+        "totalCreditTransactionAmount": 0,
+        "totalDeliveryAmount": 0,
+        "totalDeliveryOrders": 0,
+        "totalDiningInAmount": 0,
+        "totalDiningInOrders": 0,
+        "totalOnlinePaymentAmount": 0,
+        "totalOrders": 1,
+        "totalPersonalTransferAmount": 0,
+        "totalStaffFreeAmount": 0,
+        "totalTakeawayAmount": 0,
+        "totalTakeawayOrders": 0
+      }
+    }
+  ]
+}
 
 ###
 
+# @name RevenueAnalysisPrintToNetwork
+POST http://localhost:2000/print
+Content-Type: application/json
 
+{
+  "toPrintRevenueAnalysisContent": [
+    {
+      "hardwareType": "Network",
+      "ip": "192.168.0.219",
+      "revenueAnalysis": {
+        "address": "the People's Republic of China,",
+        "endDate": "2022-11-01T20:00:00+03:00",
+        "logo": "https://obs-ap1qa-kbzcomerce.obs.cn-north-1.myhuaweicloud.com/10gg000000wvyOka41lw%2FImage%2F559a2794-8029-487e-abc6-491dd4705d5d.png",
+        "shopName": "Pizza Hut Yuelu Store",
+        "startDate": "2022-10-16T00:00:00+03:00",
+        "totalAmount": 6825,
+        "totalCashPaymentAmount": 6825,
+        "totalCreditCardAmount": 0,
+        "totalCreditTransactionAmount": 0,
+        "totalDeliveryAmount": 0,
+        "totalDeliveryOrders": 0,
+        "totalDiningInAmount": 0,
+        "totalDiningInOrders": 0,
+        "totalOnlinePaymentAmount": 0,
+        "totalOrders": 1,
+        "totalPersonalTransferAmount": 0,
+        "totalStaffFreeAmount": 0,
+        "totalTakeawayAmount": 0,
+        "totalTakeawayOrders": 0
+      }
+    }
+  ]
+}
+
+###
 
 # @name OrderPrintToUSB
 POST http://localhost:2000/print
@@ -65,8 +154,8 @@ Content-Type: application/json
         { "attendant": "captains_terrace", "catalogId": "0GbI000000spz9KuPJ32", "createdDate": "2022-10-15 19:22:00", "food": { "modifier": "", "name": "Captain Full House Burger", "num": "1" }, "isDelivery": false, "remark": "", "statementID": "1", "tableCode": "A12" }
       ],
       "hardwareType": "USB",
-      "pid": "0x0D3A",
-      "vid": "0x0369"
+      "vid": "0x1fc9",
+      "pid": "0x2016"
     }
   ]
 }
@@ -105,8 +194,8 @@ Content-Type: application/json
         "tableCode": "A1"
       },
       "hardwareType": "USB",
-      "pid": "0x0001",
-      "vid": "0x0001"
+      "vid": "0x1fc9",
+      "pid": "0x2016"
     }
   ]
 }

@@ -117,6 +117,7 @@ export const f = (str) => numeral(str).format(PRICE)
  * @property {number} totalTakeawayAmount
  * @property {number} totalTakeawayOrders
  */
+
 /**
  * @public
  * @typedef BillCustomContent
@@ -168,7 +169,7 @@ export const f = (str) => numeral(str).format(PRICE)
  * @property {string} [pid]
  */
 
-  /** 
+/**
  * @public
  * @typedef ToPrintRefundContent
  * @property {RefundContent} refundContent
@@ -178,7 +179,7 @@ export const f = (str) => numeral(str).format(PRICE)
  * @property {string} [pid]
  */
 
-/** 
+/**
  * @typedef RefundContent
  * @property {string} createdDate
  * @property {Food} food
@@ -210,34 +211,27 @@ export const f = (str) => numeral(str).format(PRICE)
  * Build receipt revenue analysis content
  * @param {RevenueAnalysisContent} revenueAnalysisContent
  */
- export const buildRevenueAnalysis = (revenueAnalysisContent) => {
-  const { address, startDate,endDate,logo,shopName,totalAmount,totalCashPaymentAmount, totalOnlinePaymentAmount, totalCreditCardAmount,totalCreditTransactionAmount,totalDeliveryAmount,totalDeliveryOrders,totalDiningInAmount,totalDiningInOrders,totalOrders,totalPersonalTransferAmount,totalStaffFreeAmount,totalTakeawayAmount,totalTakeawayOrders } = revenueAnalysisContent
-   
-   let date = new Date().toISOString().replace('T', ' ').substr(0, 19)
+export const buildRevenueAnalysis = (revenueAnalysisContent) => {
+  const { address, startDate, endDate, logo, shopName, totalAmount, totalCashPaymentAmount, totalOnlinePaymentAmount, totalCreditCardAmount, totalCreditTransactionAmount, totalDeliveryAmount, totalDeliveryOrders, totalDiningInAmount, totalDiningInOrders, totalOrders, totalPersonalTransferAmount, totalStaffFreeAmount, totalTakeawayAmount, totalTakeawayOrders } = revenueAnalysisContent
 
-   let avg = totalAmount/totalOrders || 0 
-   
+  const date = new Date().toISOString().replace('T', ' ').substr(0, 19)
 
+  const avg = totalAmount / totalOrders || 0
 
-   
-   
-
-
-   const HEADER = `"^${shopName}\n
+  const HEADER = `"^${shopName}\n
             ^Revenue Report
          \n${startDate.split('T')[0]} ${startDate.split('T')[1].split('+')[0]} - ${endDate.split('T')[0]} ${endDate.split('T')[1].split('+')[0]} "`
 
-  let PRINT_DATE_TIME = `\n\n\n Date: ${date.split(' ')[0]} |  Time: ${date.split(' ')[1]}\n-\n `
+  const PRINT_DATE_TIME = `\n\n\n Date: ${date.split(' ')[0]} |  Time: ${date.split(' ')[1]}\n-\n `
 
-  let TOTALS = `\n Total Amount | ${totalAmount} \n\n Total Orders | ${totalOrders} \n-\n`
-  
-   let ORDER_TYPE_REPORT = `\n ^Order Type Report 
+  const TOTALS = `\n Total Amount | ${totalAmount} \n\n Total Orders | ${totalOrders} \n-\n`
+
+  const ORDER_TYPE_REPORT = `\n ^Order Type Report 
    \n\n Dining in Amount | ${totalDiningInAmount} \n\n Dining in Orders | ${totalDiningInOrders} 
    \n\n Takeaway Amount | ${totalTakeawayAmount} \n\n Takeaway Orders | ${totalTakeawayOrders} 
    \n\n Delivery Amount | ${totalDeliveryAmount} \n\n Delivery Orders | ${totalDeliveryOrders} \n-\n`
 
-
-    let PAYMENT_TYPE_REPORT =  `\n ^Payment Type Report 
+  const PAYMENT_TYPE_REPORT = `\n ^Payment Type Report 
     \n\n Online Payment | ${totalOnlinePaymentAmount}  
     \n\n Cash | ${totalCashPaymentAmount}
     \n\n Credit Card | ${totalCreditCardAmount}
@@ -245,23 +239,11 @@ export const f = (str) => numeral(str).format(PRICE)
     \n\n Credit Transaction | ${totalCreditTransactionAmount} 
     \n\n Staff Free | ${totalStaffFreeAmount} \n-\n`
 
-   let AVERAGES_PER_ORDER = `\n ^Averages Per Order 
+  const AVERAGES_PER_ORDER = `\n ^Averages Per Order 
    \n\n  Total Amount | ${avg} \n\n`
-
-
-  // const statementIDMd = statementID ? `Order No.: |${statementID}\n` : ''
-  // const attendantMd = attendant ? `Attendant: |${escapeChars(attendant)}\n` : ''
-  // const createdDateMd = createdDate ? `Date Time: |${createdDate}\n` : ''
-  // const receiverNameMd = receiverName ? `Receiver: |${escapeChars(receiverName)}\n` : ''
-  // const receiverPhoneMd = receiverPhone ? `Phone No.: |${receiverPhone}\n` : ''
-  // const receiverAdressMd = receiverAdress ? `Address: |${receiverAdress}\n` : ''
-  // const remarkMd = remark ? `Remark: |${remark}\n` : ''
-  // const FOOTER = `{w:10,*}\n${statementIDMd}${attendantMd}${createdDateMd}${receiverNameMd}${receiverPhoneMd}${receiverAdressMd}${remarkMd}{w:auto}\n-\n`
 
   return HEADER + PRINT_DATE_TIME + TOTALS + ORDER_TYPE_REPORT + PAYMENT_TYPE_REPORT + AVERAGES_PER_ORDER
 }
-
-
 
 /**
  * Build bill print content
