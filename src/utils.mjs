@@ -212,32 +212,55 @@ export const f = (str) => numeral(str).format(PRICE)
  * @param {RevenueAnalysisContent} revenueAnalysisContent
  */
 export const buildRevenueAnalysis = (revenueAnalysisContent) => {
-  const { address, startDate, endDate, logo, shopName, totalAmount, totalCashPaymentAmount, totalOnlinePaymentAmount, totalCreditCardAmount, totalCreditTransactionAmount, totalDeliveryAmount, totalDeliveryOrders, totalDiningInAmount, totalDiningInOrders, totalOrders, totalPersonalTransferAmount, totalStaffFreeAmount, totalTakeawayAmount, totalTakeawayOrders } = revenueAnalysisContent
+  const { startDate, endDate, shopName, totalAmount, totalCashPaymentAmount, totalOnlinePaymentAmount, totalCreditCardAmount, totalCreditTransactionAmount, totalDeliveryAmount, totalDeliveryOrders, totalDiningInAmount, totalDiningInOrders, totalOrders, totalPersonalTransferAmount, totalStaffFreeAmount, totalTakeawayAmount, totalTakeawayOrders } = revenueAnalysisContent
 
-  const date = new Date().toISOString().replace('T', ' ').substr(0, 19)
+  const date = new Date().toISOString().replace('T', ' ').substring(0, 19)
 
-  const avg = totalAmount / totalOrders || 0
+  const avg = f(totalAmount / totalOrders || 0)
 
   const HEADER = `"^${shopName}\n
-            ^Revenue Report
-         \n${startDate.split('T')[0]} ${startDate.split('T')[1].split('+')[0]} - ${endDate.split('T')[0]} ${endDate.split('T')[1].split('+')[0]} "`
+            ^Revenue Report\n
+         ${startDate.split('T')[0]} ${startDate.split('T')[1].split('+')[0]} - ${endDate.split('T')[0]} ${endDate.split('T')[1].split('+')[0]}"`
 
   const PRINT_DATE_TIME = `\n\n\n Date: ${date.split(' ')[0]} |  Time: ${date.split(' ')[1]}\n-\n `
 
   const TOTALS = `\n Total Amount | ${totalAmount} \n\n Total Orders | ${totalOrders} \n-\n`
 
   const ORDER_TYPE_REPORT = `\n ^Order Type Report 
-   \n\n Dining in Amount | ${totalDiningInAmount} \n\n Dining in Orders | ${totalDiningInOrders} 
-   \n\n Takeaway Amount | ${totalTakeawayAmount} \n\n Takeaway Orders | ${totalTakeawayOrders} 
-   \n\n Delivery Amount | ${totalDeliveryAmount} \n\n Delivery Orders | ${totalDeliveryOrders} \n-\n`
 
-  const PAYMENT_TYPE_REPORT = `\n ^Payment Type Report 
-    \n\n Online Payment | ${totalOnlinePaymentAmount}  
-    \n\n Cash | ${totalCashPaymentAmount}
-    \n\n Credit Card | ${totalCreditCardAmount}
-    \n\n Personal Transfer | ${totalPersonalTransferAmount} 
-    \n\n Credit Transaction | ${totalCreditTransactionAmount} 
-    \n\n Staff Free | ${totalStaffFreeAmount} \n-\n`
+
+    Dining in Amount | ${totalDiningInAmount}
+
+    Dining in Orders | ${totalDiningInOrders} 
+
+
+    Takeaway Amount | ${totalTakeawayAmount}
+
+    Takeaway Orders | ${totalTakeawayOrders} 
+
+
+    Delivery Amount | ${totalDeliveryAmount}
+
+    Delivery Orders | ${totalDeliveryOrders}
+
+    -\n`
+
+  const PAYMENT_TYPE_REPORT = `\n ^Payment Type Report
+
+
+    Online Payment | ${totalOnlinePaymentAmount}
+
+    Cash | ${totalCashPaymentAmount}
+
+    Credit Card | ${totalCreditCardAmount}
+
+    Personal Transfer | ${totalPersonalTransferAmount}
+
+    Credit Transaction | ${totalCreditTransactionAmount}
+
+    Staff Free | ${totalStaffFreeAmount}
+
+    -\n`
 
   const AVERAGES_PER_ORDER = `\n ^Averages Per Order 
    \n\n  Total Amount | ${avg} \n\n`
