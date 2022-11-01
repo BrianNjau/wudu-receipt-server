@@ -160,7 +160,6 @@ export const f = (str) => numeral(str).format(PRICE)
 
 /**
  * @public
-<<<<<<< HEAD
  * @typedef ToPrintRevenueAnalysisContent
  * @property {RevenueAnalysisContent} revenueAnalysis
  * @property {"Network" | "USB"} hardwareType
@@ -169,8 +168,17 @@ export const f = (str) => numeral(str).format(PRICE)
  * @property {string} [pid]
  */
 
+  /** 
+ * @public
+ * @typedef ToPrintRefundContent
+ * @property {RefundContent} refundContent
+ * @property {"Network" | "USB"} hardwareType
+ * @property {string} [ip]
+ * @property {string} [vid]
+ * @property {string} [pid]
+ */
 
-=======
+/** 
  * @typedef RefundContent
  * @property {string} createdDate
  * @property {Food} food
@@ -178,7 +186,6 @@ export const f = (str) => numeral(str).format(PRICE)
  * @property {string} tableCode Onsite
  */
 
->>>>>>> 0220cc71d16ec90e9b4e8e4490b6226b756f5d26
 /**
  * @public
  * @typedef ToPrintBillContent
@@ -200,7 +207,6 @@ export const f = (str) => numeral(str).format(PRICE)
  */
 
 /**
-<<<<<<< HEAD
  * Build receipt revenue analysis content
  * @param {RevenueAnalysisContent} revenueAnalysisContent
  */
@@ -256,16 +262,6 @@ export const f = (str) => numeral(str).format(PRICE)
 }
 
 
-=======
- * @public
- * @typedef ToPrintRefundContent
- * @property {RefundContent} refundContent
- * @property {"Network" | "USB"} hardwareType
- * @property {string} [ip]
- * @property {string} [vid]
- * @property {string} [pid]
- */
->>>>>>> 0220cc71d16ec90e9b4e8e4490b6226b756f5d26
 
 /**
  * Build bill print content
