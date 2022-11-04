@@ -18,8 +18,7 @@ const taskList = []
 const next = () => {
   if (fs.existsSync(sessionPath)) {
     if (taskList.length) {
-      fs.writeFileSync(sessionPath, taskList[0])
-      taskList = taskList.slice(1)
+      fs.writeFileSync(sessionPath, taskList.shift())
     } else {
       fs.unlinkSync(sessionPath)
     }
