@@ -297,7 +297,7 @@ export const buildBill = (billCustomContent) => {
   /** @type {NormalizedFood[]} */
   const normalizedFoodList = []
   foodList.forEach((food) => {
-    const normalizedFood = normalizedFoodList.find((record) => record.name === food.name)
+    const normalizedFood = normalizedFoodList.find((record) => record.name === food.name && record.modifier === food.modifier)
     if (normalizedFood) {
       normalizedFood.num += n(food.num)
     } else {
