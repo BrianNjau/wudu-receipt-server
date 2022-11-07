@@ -6,6 +6,7 @@ import { log, done, fail, toHex, buildBill, buildOrder, buildRefund, sleep, getP
 import fs from 'node:fs'
 import net from 'node:net'
 import path from 'node:path'
+import { setInterval, clearInterval } from 'node:timers'
 import express from 'express'
 import cors from 'cors'
 import ping from 'ping'
@@ -31,6 +32,42 @@ const readSession = () => {
     return ''
   }
 }
+
+class IPClass {
+  /**
+   * Construct an IP list
+   * @param {string[]} list IP List
+   */
+  constructor(list) {
+    this.list = Array.isArray(list) ? list : []
+
+    this.listener = () => {
+      if (this.list.length) {
+        this.list.forEach((ip) => {
+          ping.sys.probe(ip, function (isAlive) {
+            if (!isAlive) log(`IP:${ip} cannot ping.`, { prefix: '[ERROR]', logFileName: 'ping.log' })
+          })
+        })
+      }
+    }
+    this.TIME_OUT = 1 * 1000
+    if (this.list.length) {
+      this.interval = setInterval(this.listener, this.TIME_OUT)
+    }
+  }
+  /**
+   * Push an ip to the list
+   * @param {string} ip
+   */
+  push(ip) {
+    if (!this.list.includes(ip)) {
+      this.list.push(ip)
+      if (this.interval) clearInterval(this.interval)
+      this.interval = setInterval(this.listener, this.TIME_OUT)
+    }
+  }
+}
+const ipClass = new IPClass()
 
 try {
   const { findPrinter } = USB
@@ -122,6 +159,7 @@ try {
               if (!ip) handler('1', `Print ${receiptType}|${billInfo} to Network failed: ip empty.`)
               else if (net.isIP(ip) !== 4) handler('1', `Print ${receiptType}|${billInfo} to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
               else {
+                ipClass.push(ip)
                 ping.sys.probe(ip, async function (isAlive) {
                   if (!isAlive) handler('1', `Print ${receiptType}|${billInfo} to Network failed: ip:${ip} failed to connect.`)
                   else {
@@ -169,6 +207,7 @@ try {
               if (!ip) handler('1', `Print bill:${billType}|${billInfo} to Network failed: ip empty.`)
               else if (net.isIP(ip) !== 4) handler('1', `Print bill:${billType}|${billInfo} to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
               else {
+                ipClass.push(ip)
                 ping.sys.probe(ip, async function (isAlive) {
                   if (!isAlive) handler('1', `Print bill:${billType}|${billInfo} to Network failed: ip:${ip} failed to connect.`)
                   else {
@@ -217,6 +256,7 @@ try {
                 if (!ip) handler('1', `Print order to Network failed: ip empty.`)
                 else if (net.isIP(ip) !== 4) handler('1', `Print order to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
                 else {
+                  ipClass.push(ip)
                   ping.sys.probe(ip, async function (isAlive) {
                     if (!isAlive) handler('1', `Print order to Network failed: ip:${ip} failed to connect.`)
                     else {
@@ -262,6 +302,7 @@ try {
               if (!ip) handler('1', `Print refund to Network failed: ip empty.`)
               else if (net.isIP(ip) !== 4) handler('1', `Print refund to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
               else {
+                ipClass.push(ip)
                 ping.sys.probe(ip, async function (isAlive) {
                   if (!isAlive) handler('1', `Print refund to Network failed: ip:${ip} failed to connect.`)
                   else {

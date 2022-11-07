@@ -35,12 +35,12 @@ export function unlinkFileIfSizeOver(fileName, megaBytes = 1) {
 /**
  * Log function
  * @param {string} str Log string
- * @param {{ prefix: string; details: string; skip: boolean }} [param1] Extra params
+ * @param {{ prefix?: string; details?: string; logFileName?: string; skip: boolean}} [options] Extra params
  */
-export const log = (str, { prefix = '', details = '', skip } = {}) => {
-  const logPath = path.join(process.cwd(), './app.log')
+export const log = (str, { prefix = '', details = '', logFileName = './app.log', skip } = {}) => {
+  const logPath = path.join(process.cwd(), logFileName)
   const time = new Date().toLocaleString()
-  unlinkFileIfSizeOver(logPath)
+  unlinkFileIfSizeOver(logPath, 10)
   fs.appendFileSync(logPath, `[${time}] ${prefix}${JSON.stringify(`${str}${details && `|${details}`}`)}\n`)
   if (!skip) console.log(`[${time}] ${prefix}${str}`)
 }
