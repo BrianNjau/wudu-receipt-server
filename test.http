@@ -70,79 +70,6 @@ Content-Type: application/json
 
 ###
 
-# @name RevenueAnalysisPrintToUSB
-POST http://localhost:2000/print
-Content-Type: application/json
-
-{
-  "toPrintRevenueAnalysisContent": [
-    {
-      "hardwareType": "USB",
-      "vid": "0x1fc9",
-      "pid": "0x2016",
-      "revenueAnalysis": {
-        "address": "the People's Republic of China,",
-        "endDate": "2022-11-01T20:00:00+03:00",
-        "logo": "https://obs-ap1qa-kbzcomerce.obs.cn-north-1.myhuaweicloud.com/10gg000000wvyOka41lw%2FImage%2F559a2794-8029-487e-abc6-491dd4705d5d.png",
-        "shopName": "Pizza Hut Yuelu Store",
-        "startDate": "2022-10-16T00:00:00+03:00",
-        "totalAmount": 6825,
-        "totalCashPaymentAmount": 6825,
-        "totalCreditCardAmount": 0,
-        "totalCreditTransactionAmount": 0,
-        "totalDeliveryAmount": 0,
-        "totalDeliveryOrders": 0,
-        "totalDiningInAmount": 0,
-        "totalDiningInOrders": 0,
-        "totalOnlinePaymentAmount": 0,
-        "totalOrders": 1,
-        "totalPersonalTransferAmount": 0,
-        "totalStaffFreeAmount": 0,
-        "totalTakeawayAmount": 0,
-        "totalTakeawayOrders": 0
-      }
-    }
-  ]
-}
-
-###
-
-# @name RevenueAnalysisPrintToNetwork
-POST http://localhost:2000/print
-Content-Type: application/json
-
-{
-  "toPrintRevenueAnalysisContent": [
-    {
-      "hardwareType": "Network",
-      "ip": "192.168.0.219",
-      "revenueAnalysis": {
-        "address": "the People's Republic of China,",
-        "endDate": "2022-11-01T20:00:00+03:00",
-        "logo": "https://obs-ap1qa-kbzcomerce.obs.cn-north-1.myhuaweicloud.com/10gg000000wvyOka41lw%2FImage%2F559a2794-8029-487e-abc6-491dd4705d5d.png",
-        "shopName": "Pizza Hut Yuelu Store",
-        "startDate": "2022-10-16T00:00:00+03:00",
-        "totalAmount": 6825,
-        "totalCashPaymentAmount": 6825,
-        "totalCreditCardAmount": 0,
-        "totalCreditTransactionAmount": 0,
-        "totalDeliveryAmount": 0,
-        "totalDeliveryOrders": 0,
-        "totalDiningInAmount": 0,
-        "totalDiningInOrders": 0,
-        "totalOnlinePaymentAmount": 0,
-        "totalOrders": 1,
-        "totalPersonalTransferAmount": 0,
-        "totalStaffFreeAmount": 0,
-        "totalTakeawayAmount": 0,
-        "totalTakeawayOrders": 0
-      }
-    }
-  ]
-}
-
-###
-
 # @name OrderPrintToUSB
 POST http://localhost:2000/print
 Content-Type: application/json
@@ -243,3 +170,75 @@ Content-Type: application/json
 
 ###
 
+# @name RevenueAnalysisPrintToUSB
+POST http://localhost:2000/print
+Content-Type: application/json
+
+{
+  "toPrintRevenueAnalysisContent": [
+    {
+      "hardwareType": "USB",
+      "vid": "0x1fc9",
+      "pid": "0x2016",
+      "revenueAnalysis": {
+        "address": "the People's Republic of China,",
+        "endDate": "2022-11-01T20:00:00+03:00",
+        "logo": "https://obs-ap1qa-kbzcomerce.obs.cn-north-1.myhuaweicloud.com/10gg000000wvyOka41lw%2FImage%2F559a2794-8029-487e-abc6-491dd4705d5d.png",
+        "shopName": "Pizza Hut Yuelu Store",
+        "startDate": "2022-10-16T00:00:00+03:00",
+        "totalAmount": 6825,
+        "totalCashPaymentAmount": 6825,
+        "totalCreditCardAmount": 0,
+        "totalCreditTransactionAmount": 0,
+        "totalDeliveryAmount": 0,
+        "totalDeliveryOrders": 0,
+        "totalDiningInAmount": 0,
+        "totalDiningInOrders": 0,
+        "totalOnlinePaymentAmount": 0,
+        "totalOrders": 1,
+        "totalPersonalTransferAmount": 0,
+        "totalStaffFreeAmount": 0,
+        "totalTakeawayAmount": 0,
+        "totalTakeawayOrders": 0
+      }
+    }
+  ]
+}
+
+###
+
+# @name RevenueAnalysisPrintToNetwork
+POST http://localhost:2000/print
+Content-Type: application/json
+
+{
+  "toPrintRevenueAnalysisContent": [
+    {
+      "hardwareType": "Network",
+      "ip": "192.168.0.219",
+      "revenueAnalysis": {
+        "address": "the People's Republic of China,",
+        "endDate": "2022-11-01T20:00:00+03:00",
+        "logo": "https://obs-ap1qa-kbzcomerce.obs.cn-north-1.myhuaweicloud.com/10gg000000wvyOka41lw%2FImage%2F559a2794-8029-487e-abc6-491dd4705d5d.png",
+        "shopName": "Pizza Hut Yuelu Store",
+        "startDate": "2022-10-16T00:00:00+03:00",
+        "totalAmount": 6825,
+        "totalCashPaymentAmount": 6825,
+        "totalCreditCardAmount": 0,
+        "totalCreditTransactionAmount": 0,
+        "totalDeliveryAmount": 0,
+        "totalDeliveryOrders": 0,
+        "totalDiningInAmount": 0,
+        "totalDiningInOrders": 0,
+        "totalOnlinePaymentAmount": 0,
+        "totalOrders": 1,
+        "totalPersonalTransferAmount": 0,
+        "totalStaffFreeAmount": 0,
+        "totalTakeawayAmount": 0,
+        "totalTakeawayOrders": 0
+      }
+    }
+  ]
+}
+
+###

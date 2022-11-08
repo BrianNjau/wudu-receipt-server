@@ -1,9 +1,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { setInterval, clearInterval } from 'node:timers'
+import ping from 'ping'
 import numeral from 'numeral'
 
-import { PRICE } from './constants.mjs'
+import { PRICE, SESSION_PATH } from './constants.mjs'
 
 /**
  * 获取某个文件的大小（mb）
@@ -385,8 +387,99 @@ export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+/**
+ * Get package.json as JSON
+ * @returns {Object} Contents of package.json
+ */
 export function getPackageJson() {
   const currentPath = path.dirname(fileURLToPath(import.meta.url))
   const packageJsonPath = path.resolve(currentPath, '../package.json')
   return JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
+}
+
+export class IPListener {
+  /**
+   * Listening ip list
+   * @type {string[]}
+   */
+  ipList = []
+
+  /**
+   * Ping interval ms
+   */
+  timeout = 10 * 1000
+
+  /**
+   * Listen to ip list and log failed cases
+   */
+  listener = () => {
+    if (this.ipList.length) {
+      this.ipList.forEach((ip) => {
+        ping.sys.probe(ip, (isAlive) => {
+          if (!isAlive) log(`IP:${ip} cannot ping(无法连接).`, { prefix: '[ERROR]', logFileName: 'ping.log' })
+        })
+      })
+    }
+  }
+
+  /**
+   * Push an ip to the list
+   * @param {string} ip
+   */
+  push = (ip) => {
+    if (!this.ipList.includes(ip)) {
+      this.ipList.push(ip)
+      if (this.interval) clearInterval(this.interval)
+      this.interval = setInterval(this.listener, this.timeout)
+    }
+  }
+}
+
+export class TaskQueue {
+  /**
+   * Queueing printing task list
+   * @type {string[]}
+   */
+  taskList = []
+
+  /**
+   * Push a new session id to the task list
+   * @param {string} newSession New session id
+   */
+  push = (newSession) => {
+    this.taskList.push(newSession)
+  }
+
+  /**
+   * Start next task
+   */
+  next = () => {
+    if (fs.existsSync(SESSION_PATH)) {
+      if (this.taskList.length) {
+        fs.writeFileSync(SESSION_PATH, this.taskList.shift())
+      } else {
+        fs.unlinkSync(SESSION_PATH)
+      }
+    }
+  }
+
+  /**
+   * Get the current session
+   * @returns {string} session
+   */
+  getSession = () => {
+    if (fs.existsSync(SESSION_PATH)) {
+      return fs.readFileSync(SESSION_PATH, 'utf8')
+    } else {
+      return ''
+    }
+  }
+
+  /**
+   * Set the current session locally
+   * @param {string} session Current session
+   */
+  setSession = (session) => {
+    if (typeof session === 'string' && session.length) fs.writeFileSync(SESSION_PATH, session)
+  }
 }

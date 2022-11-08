@@ -1,73 +1,19 @@
 #!/usr/bin/env node
-import USB from './lib/escpos-usb.mjs'
-import print from './src/print.mjs'
-import { OTHER_BRAND, PRINT_TIME } from './src/constants.mjs'
-import { log, done, fail, toHex, buildBill, buildOrder, buildRefund, sleep, getPackageJson, buildRevenueAnalysis } from './src/utils.mjs'
+
 import fs from 'node:fs'
 import net from 'node:net'
-import path from 'node:path'
-import { setInterval, clearInterval } from 'node:timers'
-import express from 'express'
 import cors from 'cors'
 import ping from 'ping'
+import express from 'express'
 import chokidar from 'chokidar'
 
-const { name, version } = getPackageJson()
+import print from './src/print.mjs'
+import USB from './lib/escpos-usb.mjs'
+import { OTHER_BRAND, PRINT_TIME, SESSION_PATH } from './src/constants.mjs'
+import { log, done, fail, toHex, buildBill, buildOrder, buildRefund, sleep, getPackageJson, buildRevenueAnalysis, IPListener, TaskQueue } from './src/utils.mjs'
 
-const sessionPath = path.join(process.cwd(), './session.log')
-const taskList = []
-const next = () => {
-  if (fs.existsSync(sessionPath)) {
-    if (taskList.length) {
-      fs.writeFileSync(sessionPath, taskList.shift())
-    } else {
-      fs.unlinkSync(sessionPath)
-    }
-  }
-}
-const readSession = () => {
-  if (fs.existsSync(sessionPath)) {
-    return fs.readFileSync(sessionPath, 'utf8')
-  } else {
-    return ''
-  }
-}
-
-class IPClass {
-  /**
-   * Construct an IP list
-   * @param {string[]} list IP List
-   */
-  constructor(list) {
-    this.list = Array.isArray(list) ? list : []
-
-    this.listener = () => {
-      if (this.list.length) {
-        this.list.forEach((ip) => {
-          ping.sys.probe(ip, function (isAlive) {
-            if (!isAlive) log(`IP:${ip} cannot ping.`, { prefix: '[ERROR]', logFileName: 'ping.log' })
-          })
-        })
-      }
-    }
-    this.TIME_OUT = 1 * 1000
-    if (this.list.length) {
-      this.interval = setInterval(this.listener, this.TIME_OUT)
-    }
-  }
-  /**
-   * Push an ip to the list
-   * @param {string} ip
-   */
-  push(ip) {
-    if (!this.list.includes(ip)) {
-      this.list.push(ip)
-      if (this.interval) clearInterval(this.interval)
-      this.interval = setInterval(this.listener, this.TIME_OUT)
-    }
-  }
-}
-const ipClass = new IPClass()
+const taskQueue = new TaskQueue() // Printing task handling
+const ipListener = new IPListener() // Listening to the printer ip(s)
 
 try {
   const { findPrinter } = USB
@@ -93,35 +39,36 @@ try {
    * @param {express.Response} res
    */
   async function go(session, body, res) {
+    /**
+     * Send to client
+     * @param {'0' | '1'} resCode
+     * @param {string} resMsg
+     */
+    const send = (resCode, resMsg) => {
+      if (!res.headersSent) {
+        res.json({
+          resCode,
+          resMsg,
+          session,
+        })
+      }
+    }
+    /**
+     * Handle log/session clear/res send
+     * @param {'0' | '1'} code 0-success, 1-fail
+     * @param {string} msg Error msg
+     * @param {Function} [customNext]
+     */
+    const handler = (code, msg, customNext) => {
+      if (code === '0') done(`Session:${session}|${msg}`)
+      else fail(`Session:${session}|${msg}`)
+      if (customNext) customNext()
+      else taskQueue.next()
+      send(code, msg)
+    }
+
     try {
-      fs.writeFileSync(sessionPath, session)
-      /**
-       * Send to client
-       * @param {'0' | '1'} resCode
-       * @param {string} resMsg
-       */
-      const send = (resCode, resMsg) => {
-        if (!res.headersSent) {
-          res.json({
-            resCode,
-            resMsg,
-            session,
-          })
-        }
-      }
-      /**
-       * Handle log/session clear/res send
-       * @param {'0' | '1'} code 0-success, 1-fail
-       * @param {string} msg Error msg
-       * @param {Function} customNext
-       */
-      const handler = (code, msg, customNext) => {
-        if (code === '0') done(`Session:${session}|${msg}`)
-        else fail(`Session:${session}|${msg}`)
-        if (customNext) customNext()
-        else next()
-        send(code, msg)
-      }
+      taskQueue.setSession(session)
 
       const printers = findPrinter()
       const hasUsbPrinters = !!printers.length
@@ -148,206 +95,208 @@ try {
         }
       })
 
-      if (toPrintRevenueAnalysisContent && toPrintRevenueAnalysisContent.length) {
-        for (const record of toPrintRevenueAnalysisContent) {
-          const receiptType = 'report'
-          try {
-            const { hardwareType, ip, vid, pid, revenueAnalysis } = record
-            const { startDate, endDate, shopName } = revenueAnalysis
-            const billInfo = [startDate, endDate, shopName].join(':')
-            if (hardwareType === 'Network') {
-              if (!ip) handler('1', `Print ${receiptType}|${billInfo} to Network failed: ip empty.`)
-              else if (net.isIP(ip) !== 4) handler('1', `Print ${receiptType}|${billInfo} to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
-              else {
-                ipClass.push(ip)
-                ping.sys.probe(ip, async function (isAlive) {
-                  if (!isAlive) handler('1', `Print ${receiptType}|${billInfo} to Network failed: ip:${ip} failed to connect.`)
-                  else {
-                    await print(buildRevenueAnalysis(revenueAnalysis), `-d ${ip} -l zh`)
-                    handler('0', `Print ${receiptType}|${billInfo} to Network:${ip} success.`)
-                  }
-                })
-              }
-            } else if (hardwareType === 'USB') {
-              if (!hasUsbPrinters) handler('1', `Print ${receiptType}|${billInfo} to USB:${vid}|${pid} failed: USB Printers Not Found`)
-              else {
-                const commands = await print(buildRevenueAnalysis(revenueAnalysis), `-l zh`)
-                const device = new USB(vid, pid)
-                device.open((err) => {
-                  if (err) handler('1', `Print ${receiptType}|${billInfo} to USB:${vid}|${pid} failed: USB device open failed: ${err}.`)
-                  else {
-                    device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
-                      if (writeErr) handler('1', `Print ${receiptType}|${billInfo} to USB:${vid}|${pid} failed: USB device write failed: ${writeErr}.`, () => device.close(next))
-                      else {
-                        const waitTime = printTimeMap[pid]
-                        await sleep(waitTime)
-                        handler('0', `Print ${receiptType}|${billInfo} to USB:${vid}|${pid} success.`, () => device.close(next))
-                      }
-                    })
-                  }
-                })
-              }
-            } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print ${receiptType}|${billInfo}: ignore hardwareType ${hardwareType}`)
-            else handler('1', `Print ${receiptType}|${billInfo} failed: Unsupported hardwareType: ${hardwareType}`)
-          } catch (err) {
-            handler('1', `Print ${receiptType} failed: ${err.message}`)
-          }
-        }
-      }
-
       if (toPrintBillContent && toPrintBillContent.length) {
+        const printType = 'bill'
         for (const record of toPrintBillContent) {
           try {
             const { hardwareType, ip, vid, pid, customerContent } = record
-            const { isDelivery, statementID, tableCode, takeawayNo, receiverName, attendant, remark } = customerContent
-            const isTakeaway = !!takeawayNo
-            const billType = isDelivery ? 'Delivery' : isTakeaway ? 'Takeaway' : 'Onsite'
-            const billInfo = [statementID, tableCode || takeawayNo || receiverName, attendant, remark].join(':')
+            const { statementID, tableCode, takeawayNo, receiverName, attendant, remark } = customerContent
+            const billInfo = [printType, `ID:${statementID}`, tableCode ? `Onsite:${tableCode}` : takeawayNo ? `Takeaway:${takeawayNo}` : `Delivery:${receiverName}`, `Attendant:${attendant}`, `Remark:${remark}`].join('|')
+            log(billInfo, { prefix: '[INFO]' })
             if (hardwareType === 'Network') {
-              if (!ip) handler('1', `Print bill:${billType}|${billInfo} to Network failed: ip empty.`)
-              else if (net.isIP(ip) !== 4) handler('1', `Print bill:${billType}|${billInfo} to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
+              if (!ip) handler('1', `Print ${printType} to Network failed: ip empty.`)
+              else if (net.isIP(ip) !== 4) handler('1', `Print ${printType} to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
               else {
-                ipClass.push(ip)
+                ipListener.push(ip)
                 ping.sys.probe(ip, async function (isAlive) {
-                  if (!isAlive) handler('1', `Print bill:${billType}|${billInfo} to Network failed: ip:${ip} failed to connect.`)
+                  if (!isAlive) handler('1', `Print ${printType} to Network failed: ip:${ip} failed to connect.`)
                   else {
                     await print(buildBill(customerContent), `-d ${ip} -l zh`)
-                    handler('0', `Print bill:${billType}|${billInfo} to Network:${ip} success.`)
+                    handler('0', `Print ${printType} to Network:${ip} success.`)
                   }
                 })
               }
             } else if (hardwareType === 'USB') {
-              if (!hasUsbPrinters) handler('1', `Print bill:${billType}|${billInfo} to USB:${vid}|${pid} failed: USB Printers Not Found`)
+              if (!hasUsbPrinters) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB Printers Not Found`)
               else {
                 const commands = await print(buildBill(customerContent), `-l zh`)
                 const device = new USB(vid, pid)
                 device.open((err) => {
-                  if (err) handler('1', `Print bill:${billType}|${billInfo} to USB:${vid}|${pid} failed: USB device open failed: ${err}.`)
+                  if (err) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device open failed: ${err}.`)
                   else {
                     device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
-                      if (writeErr) handler('1', `Print bill:${billType}|${billInfo} to USB:${vid}|${pid} failed: USB device write failed: ${writeErr}.`, () => device.close(next))
+                      if (writeErr) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device write failed: ${writeErr}.`, () => device.close(taskQueue.next))
                       else {
                         const waitTime = printTimeMap[pid]
                         await sleep(waitTime)
-                        handler('0', `Print bill:${billType}|${billInfo} to USB:${vid}|${pid} success.`, () => device.close(next))
+                        handler('0', `Print ${printType} to USB:[${vid};${pid}] success.`, () => device.close(taskQueue.next))
                       }
                     })
                   }
                 })
               }
-            } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print bill:${billType}|${billInfo}: ignore hardwareType ${hardwareType}`)
-            else handler('1', `Print bill:${billType}|${billInfo} failed: Unsupported hardwareType: ${hardwareType}`)
+            } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print ${printType}: ignore hardwareType ${hardwareType}`)
+            else handler('1', `Print ${printType} failed: Unsupported hardwareType: ${hardwareType}`)
           } catch (err) {
-            handler('1', `Print bill failed: ${err.message}`)
+            handler('1', `Print ${printType} failed: ${err.message}`)
           }
         }
       }
 
       if (toPrintOrderContent && toPrintOrderContent.length) {
+        const printType = 'order'
         for (const record of toPrintOrderContent) {
           try {
             const { hardwareType, ip, vid, pid, chefContent } = record
             if (!chefContent.length) handler('1', `chefContent empty.`)
             else {
               const { tableCode, takeawayNo, statementID, attendant, remark } = chefContent[0]
-              const orderInfo = ['Order Info', chefContent.length, statementID, tableCode || takeawayNo || `Delivery`, attendant, remark, chefContent.map(({ food }) => `${food.name} x ${food.num}`).join('|')].join(':')
-              log(orderInfo)
+              const orderInfo = [printType, `Length:${chefContent.length}`, `ID:${statementID}`, tableCode ? `Onsite:${tableCode}` : takeawayNo ? `Takeaway:${takeawayNo}` : `Delivery`, `Attendant:${attendant}`, `Remark:${remark}`, `[${chefContent.map(({ food }) => `${food.name} x ${food.num}`).join(';')}]`].join('|')
+              log(orderInfo, { prefix: '[INFO]' })
               if (hardwareType === 'Network') {
-                if (!ip) handler('1', `Print order to Network failed: ip empty.`)
-                else if (net.isIP(ip) !== 4) handler('1', `Print order to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
+                if (!ip) handler('1', `Print ${printType} to Network failed: ip empty.`)
+                else if (net.isIP(ip) !== 4) handler('1', `Print ${printType} to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
                 else {
-                  ipClass.push(ip)
+                  ipListener.push(ip)
                   ping.sys.probe(ip, async function (isAlive) {
-                    if (!isAlive) handler('1', `Print order to Network failed: ip:${ip} failed to connect.`)
+                    if (!isAlive) handler('1', `Print ${printType} to Network failed: ip:${ip} failed to connect.`)
                     else {
                       const commands = chefContent.map((orderCustomContent) => buildOrder(orderCustomContent)).join('=\n')
                       await print(commands, `-d ${ip} -l zh`)
-                      handler('0', `Print order to Network:${ip} success.`)
+                      handler('0', `Print ${printType} to Network:${ip} success.`)
                     }
                   })
                 }
               } else if (hardwareType === 'USB') {
-                if (!hasUsbPrinters) handler('1', `Print order to USB:${vid}|${pid} failed: USB Printers Not Found`)
+                if (!hasUsbPrinters) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB Printers Not Found`)
                 else {
                   const commands = await print(chefContent.map((orderCustomContent) => buildOrder(orderCustomContent)).join('=\n'), `-l zh`)
                   const device = new USB(vid, pid)
                   device.open((err) => {
-                    if (err) handler('1', `Print order to USB:${vid}|${pid} failed: USB device open failed: ${err}`)
+                    if (err) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device open failed: ${err}`)
                     else {
                       device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
-                        if (writeErr) handler('1', `Print order to USB:${vid}|${pid} failed: USB device write failed: ${writeErr}`, () => device.close(next))
+                        if (writeErr) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device write failed: ${writeErr}`, () => device.close(taskQueue.next))
                         else {
                           const waitTime = printTimeMap[pid]
                           await sleep(waitTime)
-                          handler('0', `Print order to USB:${vid}|${pid} success.`, () => device.close(next))
+                          handler('0', `Print ${printType} to USB:[${vid};${pid}] success.`, () => device.close(taskQueue.next))
                         }
                       })
                     }
                   })
                 }
-              } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print order to USB:${vid}|${pid}: ignore hardwareType ${hardwareType}`)
-              else handler('1', `Print order to USB:${vid}|${pid} failed: Unsupported hardwareType: ${hardwareType}`)
+              } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print ${printType} to USB:[${vid};${pid}]: ignore hardwareType ${hardwareType}`)
+              else handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: Unsupported hardwareType: ${hardwareType}`)
             }
           } catch (err) {
-            handler('1', `Print order failed: ${err.message}`)
+            handler('1', `Print ${printType} failed: ${err.message}`)
           }
         }
       }
 
       if (toPrintRefundContent && toPrintRefundContent.length) {
+        const printType = 'refund'
         for (const record of toPrintRefundContent) {
           try {
             const { hardwareType, ip, vid, pid, refundContent } = record
+            if (!refundContent) handler('1', `refundContent empty.`)
+            else if (!refundContent.food) handler('1', `refundContent.food empty.`)
+            else {
+              const { food, tableCode, attendant } = refundContent
+              const { name, modifier, num } = food
+              const refundInfo = [printType, `${name}${modifier ? `[${modifier}]` : ''} x ${num}`, `Onsite:${tableCode}`, `Attendant:${attendant}`].join('|')
+              log(refundInfo, { prefix: '[INFO]' })
+              if (hardwareType === 'Network') {
+                if (!ip) handler('1', `Print ${printType} to Network failed: ip empty.`)
+                else if (net.isIP(ip) !== 4) handler('1', `Print ${printType} to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
+                else {
+                  ipListener.push(ip)
+                  ping.sys.probe(ip, async function (isAlive) {
+                    if (!isAlive) handler('1', `Print ${printType} to Network failed: ip:${ip} failed to connect.`)
+                    else {
+                      await print(buildRefund(refundContent), `-d ${ip} -l zh`)
+                      handler('0', `Print ${printType} to Network:${ip} success.`)
+                    }
+                  })
+                }
+              } else if (hardwareType === 'USB') {
+                if (!hasUsbPrinters) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB Printers Not Found`)
+                else {
+                  const commands = await print(buildRefund(refundContent), `-l zh`)
+                  const device = new USB(vid, pid)
+                  device.open((err) => {
+                    if (err) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device open failed: ${err}.`)
+                    else {
+                      device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
+                        if (writeErr) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device write failed: ${writeErr}.`, () => device.close(taskQueue.next))
+                        else {
+                          const waitTime = printTimeMap[pid]
+                          await sleep(waitTime)
+                          handler('0', `Print ${printType} to USB:[${vid};${pid}] success.`, () => device.close(taskQueue.next))
+                        }
+                      })
+                    }
+                  })
+                }
+              } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print ${printType}: ignore hardwareType ${hardwareType}`)
+              else handler('1', `Print ${printType} failed: Unsupported hardwareType: ${hardwareType}`)
+            }
+          } catch (err) {
+            handler('1', `Print ${printType} failed: ${err.message}`)
+          }
+        }
+      }
+
+      if (toPrintRevenueAnalysisContent && toPrintRevenueAnalysisContent.length) {
+        const printType = 'report'
+        for (const record of toPrintRevenueAnalysisContent) {
+          try {
+            const { hardwareType, ip, vid, pid, revenueAnalysis } = record
+            const { startDate, endDate, shopName } = revenueAnalysis
+            const reportInfo = [printType, `Start:${startDate}`, `End:${endDate}`, `Shop:${shopName}`].join('|')
+            log(reportInfo, { prefix: '[INFO]' })
             if (hardwareType === 'Network') {
-              if (!ip) handler('1', `Print refund to Network failed: ip empty.`)
-              else if (net.isIP(ip) !== 4) handler('1', `Print refund to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
+              if (!ip) handler('1', `Print ${printType} to Network failed: ip empty.`)
+              else if (net.isIP(ip) !== 4) handler('1', `Print ${printType} to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
               else {
-                ipClass.push(ip)
+                ipListener.push(ip)
                 ping.sys.probe(ip, async function (isAlive) {
-                  if (!isAlive) handler('1', `Print refund to Network failed: ip:${ip} failed to connect.`)
+                  if (!isAlive) handler('1', `Print ${printType} to Network failed: ip:${ip} failed to connect.`)
                   else {
-                    await print(buildRefund(refundContent), `-d ${ip} -l zh`)
-                    handler('0', `Print refund to Network:${ip} success.`)
+                    await print(buildRevenueAnalysis(revenueAnalysis), `-d ${ip} -l zh`)
+                    handler('0', `Print ${printType} to Network:${ip} success.`)
                   }
                 })
               }
             } else if (hardwareType === 'USB') {
-              if (!hasUsbPrinters) handler('1', `Print refund to USB:${vid}|${pid} failed: USB Printers Not Found`)
+              if (!hasUsbPrinters) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB Printers Not Found`)
               else {
-                const commands = await print(buildRefund(refundContent), `-l zh`)
+                const commands = await print(buildRevenueAnalysis(revenueAnalysis), `-l zh`)
                 const device = new USB(vid, pid)
                 device.open((err) => {
-                  if (err) handler('1', `Print refund to USB:${vid}|${pid} failed: USB device open failed: ${err}.`)
+                  if (err) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device open failed: ${err}.`)
                   else {
                     device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
-                      if (writeErr) handler('1', `Print refund to USB:${vid}|${pid} failed: USB device write failed: ${writeErr}.`, () => device.close(next))
+                      if (writeErr) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device write failed: ${writeErr}.`, () => device.close(taskQueue.next))
                       else {
                         const waitTime = printTimeMap[pid]
                         await sleep(waitTime)
-                        handler('0', `Print refund to USB:${vid}|${pid} success.`, () => device.close(next))
+                        handler('0', `Print ${printType} to USB:[${vid};${pid}] success.`, () => device.close(taskQueue.next))
                       }
                     })
                   }
                 })
               }
-            } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print refund: ignore hardwareType ${hardwareType}`)
-            else handler('1', `Print refund failed: Unsupported hardwareType: ${hardwareType}`)
+            } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print ${printType}: ignore hardwareType ${hardwareType}`)
+            else handler('1', `Print ${printType} failed: Unsupported hardwareType: ${hardwareType}`)
           } catch (err) {
-            handler('1', `Print refund failed: ${err.message}`)
+            handler('1', `Print ${printType} failed: ${err.message}`)
           }
         }
       }
     } catch (err) {
-      const msg = `Print failed: ${err.message}.`
-      fail(`Session:${session}|${msg}`)
-      next()
-      if (!res.headersSent) {
-        res.json({
-          resCode: '1',
-          resMsg: msg,
-          session,
-        })
-      }
+      handler('1', `Print failed: ${err.message}.`)
     }
   }
 
@@ -358,13 +307,14 @@ try {
    */
   async function onPrint(req, res) {
     const session = Date.now().toString()
+
     try {
-      if (!fs.existsSync(sessionPath)) {
+      if (!fs.existsSync(SESSION_PATH)) {
         go(session, req.body, res)
       } else {
-        taskList.push(session)
-        const watcher = chokidar.watch(sessionPath).on('all', () => {
-          if (readSession() === session) {
+        taskQueue.push(session)
+        const watcher = chokidar.watch(SESSION_PATH).on('all', () => {
+          if (taskQueue.getSession() === session) {
             go(session, req.body, res)
             watcher.close()
           }
@@ -373,7 +323,7 @@ try {
     } catch (err) {
       const msg = `Print failed: ${err.message}.`
       fail(`Session:${session}|${msg}`)
-      next()
+      taskQueue.next()
       if (!res.headersSent) {
         res.json({
           resCode: '1',
@@ -388,9 +338,10 @@ try {
    * Lisenter funtioner on app start
    */
   function onListen() {
+    const { name, version } = getPackageJson()
     log(`////////// ${name} ${version} Started //////////`)
 
-    // Print out USB printers - 寻找本地的USB打印机
+    // Print out USB printers
     const printers = findPrinter()
     if (!printers.length) {
       log(`USB Printers Not Found`, {
@@ -403,11 +354,11 @@ try {
         details: JSON.stringify(printers),
         skip: true,
       })
-      printers.forEach(({ deviceDescriptor: { idVendor: vid, idProduct: pid } }, i) => log(`vid:0x${toHex(vid)}|pid:0x${toHex(pid)}`, { prefix: `[USB Printer ${i + 1}]` }))
+      printers.forEach(({ deviceDescriptor: { idVendor: vid, idProduct: pid } }, i) => log(`vid:0x${toHex(vid)}|pid:0x${toHex(pid)}`, { prefix: `[INFO]USB Printer ${i + 1}|` }))
     }
 
     // Clean prev session.log
-    next()
+    taskQueue.next()
   }
 
   /**
@@ -416,12 +367,12 @@ try {
    */
   function onError(err) {
     fail(`${err.code}: Port 2000 already in use(端口已启用或被占用)`, { details: err.message })
-    next()
+    taskQueue.next()
   }
 
   app.post('/print', onPrint)
   app.listen(2000, onListen).on('error', onError)
 } catch (err) {
   fail(err)
-  next()
+  taskQueue.next()
 }
