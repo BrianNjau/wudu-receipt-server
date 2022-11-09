@@ -1,5 +1,7 @@
 import USB from '../lib/escpos-usb.mjs'
-import { print } from '../lib/receiptio.js'
+import * as receiptio from '../lib/receiptio.js'
+
+const print = receiptio.print
 
 const bill = `^^^RECEIPT
 

@@ -1,15 +1,21 @@
 {
-  "name": "receipt-server",
+  "name": "@huawei/receipt-server",
   "author": "Ynewtime",
-  "version": "0.4.2",
-  "main": "index.mjs",
+  "version": "0.5.0-beta.0",
   "bin": {
-    "receipt-server": "src/index.mjs",
+    "receipt-server": "bin/receipt-server.mjs",
     "receiptio": "bin/receiptio.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "prepublishOnly": "npm run build",
     "dev": "nodemon -w index.mjs -w test.mjs -w src -w lib src/index.mjs",
-    "start": "node src/index.mjs"
+    "start": "node src/index.mjs",
+    "build": "unbuild",
+    "stub": "unbuild --stub",
+    "release": "bumpp && npm publish"
   },
   "dependencies": {
     "chokidar": "^3.5.3",
@@ -22,6 +28,8 @@
     "usb": "^2.5.2"
   },
   "devDependencies": {
-    "nodemon": "^2.0.20"
+    "bumpp": "^8.2.1",
+    "nodemon": "^2.0.20",
+    "unbuild": "^0.9.4"
   }
 }

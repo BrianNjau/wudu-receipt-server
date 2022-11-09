@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import fs from 'node:fs'
 import net from 'node:net'
 import cors from 'cors'
@@ -8,10 +6,11 @@ import express from 'express'
 import chokidar from 'chokidar'
 
 import USB from '../lib/escpos-usb.mjs'
-import { print } from '../lib/receiptio.js'
+import * as receiptio from '../lib/receiptio.js'
 import { OTHER_BRAND, PRINT_TIME, SESSION_PATH } from './constants.mjs'
 import { log, done, fail, toHex, buildBill, buildOrder, buildRefund, sleep, getPackageJson, buildRevenueAnalysis, IPListener, TaskQueue } from './utils.mjs'
 
+const print = receiptio.print
 const taskQueue = new TaskQueue() // Printing task handling
 const ipListener = new IPListener() // Listening to the printer ip(s)
 

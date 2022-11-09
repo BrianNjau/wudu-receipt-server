@@ -13,9 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+import { Transform } from 'node:stream'
 
 declare module 'receiptline' {
-  import { Transform } from 'node:stream'
   /**
    * Encoding
    */
@@ -43,7 +43,7 @@ declare module 'receiptline' {
     /** command set (default: svg) */
     command?: keyof Commands | BaseCommand
     /** extra properties */
-    [propName: string]: any;
+    [propName: string]: any
   }
   /**
    * Commands
@@ -54,11 +54,11 @@ declare module 'receiptline' {
     /** SVG */
     svg: BaseCommand
     /** Text */
-    text: BaseCommand;
+    text: BaseCommand
     /** ESC/POS */
     escpos: BaseCommand
     /** ESC/POS (Epson) */
-    epson: BaseCommand;
+    epson: BaseCommand
     /** ESC/POS (Seiko Instruments) */
     sii: BaseCommand
     /** ESC/POS (Citizen) */
@@ -70,7 +70,7 @@ declare module 'receiptline' {
     /** ESC/POS (TM-U220 Font B) */
     impactb: BaseCommand
     /** ESC/POS (Generic) */
-    generic: BaseCommand;
+    generic: BaseCommand
     /** StarPRNT (SBCS, Thai) */
     starsbcs: BaseCommand
     /** StarPRNT (Japanese) */
