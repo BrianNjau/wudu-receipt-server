@@ -9,7 +9,6 @@ specifiers:
   nodemon: ^2.0.20
   numeral: ^2.0.6
   ping: ^0.4.2
-  pngjs: ^6.0.0
   unbuild: ^0.9.4
   usb: ^2.5.2
 
@@ -20,7 +19,6 @@ dependencies:
   iconv-lite: 0.6.3
   numeral: 2.0.6
   ping: 0.4.2
-  pngjs: 6.0.0
   usb: 2.5.2
 
 devDependencies:
@@ -1780,11 +1778,6 @@ packages:
       mlly: 0.5.16
       pathe: 0.3.9
     dev: true
-
-  /pngjs/6.0.0:
-    resolution: {integrity: sha512-TRzzuFRRmEoSW/p1KVAmiOgPco2Irlah+bGFCeNfJXxxYGwSw7YwAOAcd7X28K/m5bjBWKsC29KyoMfHbypayg==}
-    engines: {node: '>=12.13.0'}
-    dev: false
 
   /pretty-bytes/6.0.0:
     resolution: {integrity: sha512-6UqkYefdogmzqAZWzJ7laYeJnaXDy2/J+ZqiiMtS7t7OfpXWTlaeGMwX8U6EFvPV/YWWEKRkS8hKS4k60WHTOg==}
