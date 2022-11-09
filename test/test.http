@@ -13,8 +13,9 @@ Content-Type: application/json
         "createdDate": "2022-10-12 19:59:50",
         "customerNum": "2",
         "foodList": [
-          { "modifier": "1", "name": "Dumpling", "num": "1", "price": "1,000" },
-          { "modifier": "2", "name": "Dumpling", "num": "2", "price": "1,000" }
+          { "modifier": "1", "name": "白象啤酒", "num": "1", "price": "1,000" },
+          { "modifier": "2", "name": "Dumpling", "num": "2", "price": "1,000" },
+          { "modifier": "3", "name": "たこやき", "num": "3", "price": "1,000" }
         ],
         "isDelivery": false,
         "logo": "https://obs-ap1qa-kbzcomerce.obs.cn-north-1.myhuaweicloud.com/10gg000000wvyOka41lw%2FImage%2F6693e868-2fe0-4c2d-97ba-07056bc3911f.jpg",
@@ -23,7 +24,7 @@ Content-Type: application/json
         "shopName": "Connect Coffee",
         "statementID": "",
         "tableCode": "A1",
-        "totalPrice": "3,000"
+        "totalPrice": "6,000"
       },
       "hardwareType": "USB",
       "vid": "0x1fc9",
@@ -42,25 +43,23 @@ Content-Type: application/json
   "toPrintBillContent": [
     {
       "customerContent": {
-        "address": "Huawei Technologies Rep. Office Hq,Mugumo Road,Masiwa,Kilimani,Nairobi",
-        "attendant": "captains_terrace",
-        "createdDate": "2022-10-26 17:58:46",
+        "address": "Connect Coffee,Chiromo,Kileleshwa,Kilimani,Nairobi",
+        "attendant": "Connect_Coffee_Manager",
+        "createdDate": "2022-10-12 19:59:50",
+        "customerNum": "2",
         "foodList": [
-          {
-            "modifier": "",
-            "name": "Cosmopolitan",
-            "num": "1",
-            "price": "600"
-          },
-          { "modifier": "", "name": "Cosmopolitan", "num": "1", "price": "600" }
+          { "modifier": "1", "name": "白象啤酒", "num": "1", "price": "1,000" },
+          { "modifier": "2", "name": "Dumpling", "num": "2", "price": "1,000" },
+          { "modifier": "3", "name": "たこやき", "num": "3", "price": "1,000" }
         ],
         "isDelivery": false,
-        "logo": "https://obs-scanorder.obs.af-south-1.myhuaweicloud.com/10gg000000r8zDtiJHe4%2FImage%2F225879a1-40b7-4ff6-b5b1-2ae48af40d54.jpg",
+        "logo": "https://obs-ap1qa-kbzcomerce.obs.cn-north-1.myhuaweicloud.com/10gg000000wvyOka41lw%2FImage%2F6693e868-2fe0-4c2d-97ba-07056bc3911f.jpg",
+        "rartingUrl": "https://dev-sg.appcubecloud.com//magno/render/ScanOrder__ScanOrder_0000000000vF8747q4zR/rating?orderNo=null",
         "remark": "",
-        "shopName": "Captains",
+        "shopName": "Connect Coffee",
         "statementID": "",
-        "tableCode": "A01",
-        "totalPrice": "1,200"
+        "tableCode": "A1",
+        "totalPrice": "6,000"
       },
       "hardwareType": "Network",
       "ip": "192.168.0.219"
@@ -78,26 +77,9 @@ Content-Type: application/json
   "toPrintOrderContent": [
     {
       "chefContent": [
-        {
-          "attendant": "captains_terrace",
-          "catalogId": "0GbI000000tSFIoOFW2y",
-          "createdDate": "2022-11-05 19:25:48",
-          "food": { "modifier": "Keringet Sparkling 500 ml", "name": "Water", "num": "1" },
-          "isDelivery": false,
-          "remark": "",
-          "statementID": "1",
-          "tableCode": "A02"
-        },
-        {
-          "attendant": "captains_terrace",
-          "catalogId": "0GbI000000tSFIoOFW2y",
-          "createdDate": "2022-11-05 19:25:48",
-          "food": { "modifier": "Keringet Sparkling 1 litre", "name": "Water", "num": "1" },
-          "isDelivery": false,
-          "remark": "",
-          "statementID": "1",
-          "tableCode": "A02"
-        }
+        { "attendant": "captains_terrace1", "catalogId": "0GbI000000spz9KuPJ32", "createdDate": "2022-10-15 19:22:00", "food": { "modifier": "", "name": "Captain Full House Burger", "num": "1" }, "isDelivery": false, "remark": "", "statementID": "1", "tableCode": "A12" },
+        { "attendant": "captains_terrace2", "catalogId": "0GbI000000spz9KuPJ32", "createdDate": "2022-11-09 21:04:00", "food": { "modifier": "巨", "name": "船长汉堡", "num": "2" }, "isDelivery": true, "remark": "加番茄酱！", "statementID": "2", "receiverName": "Stephen Tseng" },
+        { "attendant": "captains_terrace3", "catalogId": "0GbI000000spz9KuPJ32", "createdDate": "2022-11-09 21:04:00", "food": { "modifier": "少量", "name": "フライドポテト", "num": "3" }, "isDelivery": false, "remark": "塩を入れすぎない", "statementID": "3", "takeawayNo": "3" }
       ],
       "hardwareType": "USB",
       "vid": "0x1fc9",
@@ -117,7 +99,9 @@ Content-Type: application/json
   "toPrintOrderContent": [
     {
       "chefContent": [
-        { "attendant": "captains_terrace", "catalogId": "0GbI000000spz9KuPJ32", "createdDate": "2022-10-15 19:22:00", "food": { "modifier": "", "name": "Captain Full House Burger", "num": "1" }, "isDelivery": false, "remark": "", "statementID": "1", "tableCode": "A12" }
+        { "attendant": "captains_terrace1", "catalogId": "0GbI000000spz9KuPJ32", "createdDate": "2022-10-15 19:22:00", "food": { "modifier": "", "name": "Captain Full House Burger", "num": "1" }, "isDelivery": false, "remark": "", "statementID": "1", "tableCode": "A12" },
+        { "attendant": "captains_terrace2", "catalogId": "0GbI000000spz9KuPJ32", "createdDate": "2022-11-09 21:04:00", "food": { "modifier": "巨", "name": "船长汉堡", "num": "2" }, "isDelivery": true, "remark": "加番茄酱！", "statementID": "2", "receiverName": "Stephen Tseng" },
+        { "attendant": "captains_terrace3", "catalogId": "0GbI000000spz9KuPJ32", "createdDate": "2022-11-09 21:04:00", "food": { "modifier": "少量", "name": "フライドポテト", "num": "3" }, "isDelivery": false, "remark": "塩を入れすぎない", "statementID": "3", "takeawayNo": "3" }
       ],
       "hardwareType": "Network",
       "ip": "192.168.0.219"
@@ -177,9 +161,6 @@ Content-Type: application/json
 {
   "toPrintRevenueAnalysisContent": [
     {
-      "hardwareType": "USB",
-      "vid": "0x1fc9",
-      "pid": "0x2016",
       "revenueAnalysis": {
         "address": "the People's Republic of China,",
         "endDate": "2022-11-01T20:00:00+03:00",
@@ -200,7 +181,10 @@ Content-Type: application/json
         "totalStaffFreeAmount": 0,
         "totalTakeawayAmount": 0,
         "totalTakeawayOrders": 0
-      }
+      },
+      "hardwareType": "USB",
+      "vid": "0x1fc9",
+      "pid": "0x2016"
     }
   ]
 }
@@ -214,8 +198,6 @@ Content-Type: application/json
 {
   "toPrintRevenueAnalysisContent": [
     {
-      "hardwareType": "Network",
-      "ip": "192.168.0.219",
       "revenueAnalysis": {
         "address": "the People's Republic of China,",
         "endDate": "2022-11-01T20:00:00+03:00",
@@ -236,7 +218,9 @@ Content-Type: application/json
         "totalStaffFreeAmount": 0,
         "totalTakeawayAmount": 0,
         "totalTakeawayOrders": 0
-      }
+      },
+      "hardwareType": "Network",
+      "ip": "192.168.0.219"
     }
   ]
 }

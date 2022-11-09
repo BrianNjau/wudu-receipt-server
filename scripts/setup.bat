@@ -5,5 +5,5 @@
 
 chcp 65001
 @echo off
-npm i -g pnpm && pnpm i
+cd .. && npm i -g pnpm && pnpm i
 pause

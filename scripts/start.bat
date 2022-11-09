@@ -3,5 +3,5 @@
 
 chcp 65001
 @echo off
-npm start
+cd .. && npm start
 pause

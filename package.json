@@ -1,14 +1,15 @@
 {
   "name": "receipt-server",
   "author": "Ynewtime",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "main": "index.mjs",
   "bin": {
-    "receipt-server": "bin/index.js"
+    "receipt-server": "src/index.mjs",
+    "receiptio": "bin/receiptio.js"
   },
   "scripts": {
-    "dev": "nodemon -w index.mjs -w test.mjs -w src -w lib index.mjs",
-    "start": "node --no-warnings index.mjs"
+    "dev": "nodemon -w index.mjs -w test.mjs -w src -w lib src/index.mjs",
+    "start": "node src/index.mjs"
   },
   "dependencies": {
     "chokidar": "^3.5.3",
@@ -17,6 +18,7 @@
     "iconv-lite": "^0.6.3",
     "numeral": "^2.0.6",
     "ping": "^0.4.2",
+    "pngjs": "^6.0.0",
     "usb": "^2.5.2"
   },
   "devDependencies": {

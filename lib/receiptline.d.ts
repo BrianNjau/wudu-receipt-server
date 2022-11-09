@@ -42,6 +42,8 @@ declare module 'receiptline' {
     cutting?: boolean
     /** command set (default: svg) */
     command?: keyof Commands | BaseCommand
+    /** extra properties */
+    [propName: string]: any;
   }
   /**
    * Commands
@@ -51,8 +53,12 @@ declare module 'receiptline' {
     base: BaseCommand
     /** SVG */
     svg: BaseCommand
-    /** ESC/POS (Epson) */
+    /** Text */
+    text: BaseCommand;
+    /** ESC/POS */
     escpos: BaseCommand
+    /** ESC/POS (Epson) */
+    epson: BaseCommand;
     /** ESC/POS (Seiko Instruments) */
     sii: BaseCommand
     /** ESC/POS (Citizen) */
@@ -63,6 +69,8 @@ declare module 'receiptline' {
     impact: BaseCommand
     /** ESC/POS (TM-U220 Font B) */
     impactb: BaseCommand
+    /** ESC/POS (Generic) */
+    generic: BaseCommand;
     /** StarPRNT (SBCS, Thai) */
     starsbcs: BaseCommand
     /** StarPRNT (Japanese) */
