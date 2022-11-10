@@ -111,7 +111,7 @@ try {
                 ping.sys.probe(ip, async function (isAlive) {
                   if (!isAlive) handler('1', `Print ${printType} to Network failed: ip:${ip} failed to connect.`)
                   else {
-                    await print(buildBill(customerContent), `-d ${ip} -p generic`)
+                    await print(buildBill(customerContent), `-d ${ip} -l zh -p generic`)
                     handler('0', `Print ${printType} to Network:${ip} success.`)
                   }
                 })
@@ -119,7 +119,7 @@ try {
             } else if (hardwareType === 'USB') {
               if (!hasUsbPrinters) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB Printers Not Found`)
               else {
-                const commands = await print(buildBill(customerContent), `-p generic`)
+                const commands = await print(buildBill(customerContent), `-l zh -p generic`)
                 const device = new USB(vid, pid)
                 device.open((err) => {
                   if (err) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device open failed: ${err}.`)
@@ -162,7 +162,7 @@ try {
                     if (!isAlive) handler('1', `Print ${printType} to Network failed: ip:${ip} failed to connect.`)
                     else {
                       const commands = chefContent.map((orderCustomContent) => buildOrder(orderCustomContent)).join('=\n')
-                      await print(commands, `-d ${ip} -p generic`)
+                      await print(commands, `-d ${ip} -l zh -p generic`)
                       handler('0', `Print ${printType} to Network:${ip} success.`)
                     }
                   })
@@ -170,7 +170,7 @@ try {
               } else if (hardwareType === 'USB') {
                 if (!hasUsbPrinters) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB Printers Not Found`)
                 else {
-                  const commands = await print(chefContent.map((orderCustomContent) => buildOrder(orderCustomContent)).join('=\n'), `-p generic`)
+                  const commands = await print(chefContent.map((orderCustomContent) => buildOrder(orderCustomContent)).join('=\n'), `-l zh -p generic`)
                   const device = new USB(vid, pid)
                   device.open((err) => {
                     if (err) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device open failed: ${err}`)
@@ -215,7 +215,7 @@ try {
                   ping.sys.probe(ip, async function (isAlive) {
                     if (!isAlive) handler('1', `Print ${printType} to Network failed: ip:${ip} failed to connect.`)
                     else {
-                      await print(buildRefund(refundContent), `-d ${ip} -p generic`)
+                      await print(buildRefund(refundContent), `-d ${ip} -l zh -p generic`)
                       handler('0', `Print ${printType} to Network:${ip} success.`)
                     }
                   })
@@ -223,7 +223,7 @@ try {
               } else if (hardwareType === 'USB') {
                 if (!hasUsbPrinters) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB Printers Not Found`)
                 else {
-                  const commands = await print(buildRefund(refundContent), `-p generic`)
+                  const commands = await print(buildRefund(refundContent), `-l zh -p generic`)
                   const device = new USB(vid, pid)
                   device.open((err) => {
                     if (err) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device open failed: ${err}.`)
@@ -264,7 +264,7 @@ try {
                 ping.sys.probe(ip, async function (isAlive) {
                   if (!isAlive) handler('1', `Print ${printType} to Network failed: ip:${ip} failed to connect.`)
                   else {
-                    await print(buildRevenueAnalysis(revenueAnalysis), `-d ${ip} -p generic`)
+                    await print(buildRevenueAnalysis(revenueAnalysis), `-d ${ip} -l zh -p generic`)
                     handler('0', `Print ${printType} to Network:${ip} success.`)
                   }
                 })
@@ -272,7 +272,7 @@ try {
             } else if (hardwareType === 'USB') {
               if (!hasUsbPrinters) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB Printers Not Found`)
               else {
-                const commands = await print(buildRevenueAnalysis(revenueAnalysis), `-p generic`)
+                const commands = await print(buildRevenueAnalysis(revenueAnalysis), `-l zh -p generic`)
                 const device = new USB(vid, pid)
                 device.open((err) => {
                   if (err) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device open failed: ${err}.`)

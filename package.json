@@ -1,7 +1,7 @@
 {
   "name": "receipt-server",
   "author": "Ynewtime",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "bin": {
     "receipt-server": "bin/receipt-server.mjs"
   },
