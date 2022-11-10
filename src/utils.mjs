@@ -37,7 +37,7 @@ export function unlinkFileIfSizeOver(fileName, megaBytes = 1) {
 /**
  * Log function
  * @param {string} str Log string
- * @param {{ prefix?: string; details?: string; logFileName?: string; skip: boolean}} [options] Extra params
+ * @param {{ prefix?: string; details?: string; logFileName?: string; skip?: boolean}} [options] Extra params
  */
 export const log = (str, { prefix = '', details = '', logFileName = './app.log', skip } = {}) => {
   const logPath = path.join(process.cwd(), logFileName)
@@ -47,8 +47,8 @@ export const log = (str, { prefix = '', details = '', logFileName = './app.log',
   if (!skip) console.log(`[${time}] ${prefix}${str}`)
 }
 
-export const done = (str, { details = '', skip } = {}) => log(str, { prefix: '[SUCCESS]', details, skip })
-export const fail = (str, { details = '', skip } = {}) => log(str, { prefix: '[ERROR]', details, skip })
+export const done = (str, { details = '', logFileName, skip } = {}) => log(str, { prefix: '[DONE]', details, logFileName, skip })
+export const fail = (str, { details = '', logFileName, skip } = {}) => log(str, { prefix: '[FAIL]', details, logFileName, skip })
 
 /**
  * Transform number-like string to hex output
@@ -416,7 +416,7 @@ export class IPListener {
     if (this.ipList.length) {
       this.ipList.forEach((ip) => {
         ping.sys.probe(ip, (isAlive) => {
-          if (!isAlive) log(`IP:${ip} cannot ping(无法连接).`, { prefix: '[ERROR]', logFileName: 'ping.log' })
+          if (!isAlive) fail(`IP:${ip} cannot ping(无法连接).`, { logFileName: 'ping.log' })
         })
       })
     }

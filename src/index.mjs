@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import net from 'node:net'
+import crypto from 'node:crypto'
 import cors from 'cors'
 import ping from 'ping'
 import express from 'express'
@@ -100,7 +101,7 @@ try {
           try {
             const { hardwareType, ip, vid, pid, customerContent } = record
             const { statementID, tableCode, takeawayNo, receiverName, attendant, remark } = customerContent
-            const billInfo = [printType, `ID:${statementID}`, tableCode ? `Onsite:${tableCode}` : takeawayNo ? `Takeaway:${takeawayNo}` : `Delivery:${receiverName}`, `Attendant:${attendant}`, `Remark:${remark}`].join('|')
+            const billInfo = [`Session:${session}`, printType, `ID:${statementID}`, tableCode ? `Onsite:${tableCode}` : takeawayNo ? `Takeaway:${takeawayNo}` : `Delivery:${receiverName}`, `Attendant:${attendant}`, `Remark:${remark}`].join('|')
             log(billInfo, { prefix: '[INFO]' })
             if (hardwareType === 'Network') {
               if (!ip) handler('1', `Print ${printType} to Network failed: ip empty.`)
@@ -150,7 +151,7 @@ try {
             if (!chefContent.length) handler('1', `chefContent empty.`)
             else {
               const { tableCode, takeawayNo, statementID, attendant, remark } = chefContent[0]
-              const orderInfo = [printType, `Length:${chefContent.length}`, `ID:${statementID}`, tableCode ? `Onsite:${tableCode}` : takeawayNo ? `Takeaway:${takeawayNo}` : `Delivery`, `Attendant:${attendant}`, `Remark:${remark}`, `[${chefContent.map(({ food }) => `${food.name} x ${food.num}`).join(';')}]`].join('|')
+              const orderInfo = [`Session:${session}`, printType, `Length:${chefContent.length}`, `ID:${statementID}`, tableCode ? `Onsite:${tableCode}` : takeawayNo ? `Takeaway:${takeawayNo}` : `Delivery`, `Attendant:${attendant}`, `Remark:${remark}`, `[${chefContent.map(({ food }) => `${food.name} x ${food.num}`).join(';')}]`].join('|')
               log(orderInfo, { prefix: '[INFO]' })
               if (hardwareType === 'Network') {
                 if (!ip) handler('1', `Print ${printType} to Network failed: ip empty.`)
@@ -204,7 +205,7 @@ try {
             else {
               const { food, tableCode, attendant } = refundContent
               const { name, modifier, num } = food
-              const refundInfo = [printType, `${name}${modifier ? `[${modifier}]` : ''} x ${num}`, `Onsite:${tableCode}`, `Attendant:${attendant}`].join('|')
+              const refundInfo = [`Session:${session}`, printType, `${name}${modifier ? `[${modifier}]` : ''} x ${num}`, `Onsite:${tableCode}`, `Attendant:${attendant}`].join('|')
               log(refundInfo, { prefix: '[INFO]' })
               if (hardwareType === 'Network') {
                 if (!ip) handler('1', `Print ${printType} to Network failed: ip empty.`)
@@ -253,7 +254,7 @@ try {
           try {
             const { hardwareType, ip, vid, pid, revenueAnalysis } = record
             const { startDate, endDate, shopName } = revenueAnalysis
-            const reportInfo = [printType, `Start:${startDate}`, `End:${endDate}`, `Shop:${shopName}`].join('|')
+            const reportInfo = [`Session:${session}`, printType, `Start:${startDate}`, `End:${endDate}`, `Shop:${shopName}`].join('|')
             log(reportInfo, { prefix: '[INFO]' })
             if (hardwareType === 'Network') {
               if (!ip) handler('1', `Print ${printType} to Network failed: ip empty.`)
@@ -305,14 +306,14 @@ try {
    * @param {express.Response} res
    */
   async function onPrint(req, res) {
-    const session = Date.now().toString()
+    const session = crypto.randomUUID()
 
     try {
       if (!fs.existsSync(SESSION_PATH)) {
         go(session, req.body, res)
       } else {
         taskQueue.push(session)
-        const watcher = chokidar.watch(SESSION_PATH).on('all', () => {
+        const watcher = chokidar.watch(SESSION_PATH).on('change', () => {
           if (taskQueue.getSession() === session) {
             go(session, req.body, res)
             watcher.close()
