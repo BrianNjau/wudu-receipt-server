@@ -6,18 +6,15 @@ import ping from 'ping'
 import express from 'express'
 import chokidar from 'chokidar'
 
-import USB from '../lib/escpos-usb.mjs'
 import * as receiptio from '../lib/receiptio.js'
-import { OTHER_BRAND, PRINT_TIME, SESSION_PATH } from './constants.mjs'
-import { log, done, fail, toHex, buildBill, buildOrder, buildRefund, sleep, getPackageJson, buildRevenueAnalysis, IPListener, TaskQueue } from './utils.mjs'
+import { NO_NET_BRAND, SESSION_PATH } from './constants.mjs'
+import { log, done, fail, buildBill, buildOrder, buildRefund, getPackageJson, buildRevenueAnalysis, IPListener, TaskQueue } from './utils.mjs'
 
 const print = receiptio.print
 const taskQueue = new TaskQueue() // Printing task handling
 const ipListener = new IPListener() // Listening to the printer ip(s)
 
 try {
-  const { findPrinter } = USB
-
   const app = express()
   app.use(cors())
   app.use(express.json())
@@ -70,9 +67,6 @@ try {
     try {
       taskQueue.setSession(session)
 
-      const printers = findPrinter()
-      const hasUsbPrinters = !!printers.length
-
       if (!('toPrintBillContent' in body) && !('toPrintOrderContent' in body) && !('toPrintRefundContent' in body) && !('toPrintRevenueAnalysisContent' in body)) {
         return handler('1', `Print failed: 'toPrintBillContent', 'toPrintOrderContent', 'toPrintRefundContent' and 'toPrintRevenueAnalysisContent' not in the body.`)
       }
@@ -82,24 +76,11 @@ try {
         return handler('1', `Print failed: 'toPrintBillContent', 'toPrintOrderContent', 'toPrintRefundContent' and 'toPrintRevenueAnalysisContent' empty.`)
       }
 
-      const printTimeMap = {}
-      const toPrintList = [...(toPrintBillContent || []), ...(toPrintOrderContent || []), ...(toPrintRefundContent || []), ...(toPrintRevenueAnalysisContent || [])]
-      toPrintList.forEach(({ pid, chefContent }) => {
-        const time = chefContent ? chefContent.length * PRINT_TIME : PRINT_TIME
-        if (pid) {
-          if (pid in printTimeMap) {
-            printTimeMap[pid] += time
-          } else {
-            printTimeMap[pid] = time
-          }
-        }
-      })
-
       if (toPrintBillContent && toPrintBillContent.length) {
         const printType = 'bill'
         for (const record of toPrintBillContent) {
           try {
-            const { hardwareType, ip, vid, pid, customerContent } = record
+            const { hardwareType, ip, customerContent } = record
             const { statementID, tableCode, takeawayNo, receiverName, attendant, remark } = customerContent
             const billInfo = [`Session:${session}`, printType, `ID:${statementID}`, tableCode ? `Onsite:${tableCode}` : takeawayNo ? `Takeaway:${takeawayNo}` : `Delivery:${receiverName}`, `Attendant:${attendant}`, `Remark:${remark}`].join('|')
             log(billInfo, { prefix: '[INFO]' })
@@ -116,26 +97,7 @@ try {
                   }
                 })
               }
-            } else if (hardwareType === 'USB') {
-              if (!hasUsbPrinters) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB Printers Not Found`)
-              else {
-                const commands = await print(buildBill(customerContent), `-l zh -p generic`)
-                const device = new USB(vid, pid)
-                device.open((err) => {
-                  if (err) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device open failed: ${err}.`)
-                  else {
-                    device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
-                      if (writeErr) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device write failed: ${writeErr}.`, () => device.close(taskQueue.next))
-                      else {
-                        const waitTime = printTimeMap[pid]
-                        await sleep(waitTime)
-                        handler('0', `Print ${printType} to USB:[${vid};${pid}] success.`, () => device.close(taskQueue.next))
-                      }
-                    })
-                  }
-                })
-              }
-            } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print ${printType}: ignore hardwareType ${hardwareType}`)
+            } else if (NO_NET_BRAND.includes(hardwareType)) handler('0', `Print ${printType}: ignore hardwareType ${hardwareType}`)
             else handler('1', `Print ${printType} failed: Unsupported hardwareType: ${hardwareType}`)
           } catch (err) {
             handler('1', `Print ${printType} failed: ${err.message}`)
@@ -147,7 +109,7 @@ try {
         const printType = 'order'
         for (const record of toPrintOrderContent) {
           try {
-            const { hardwareType, ip, vid, pid, chefContent } = record
+            const { hardwareType, ip, chefContent } = record
             if (!chefContent.length) handler('1', `chefContent empty.`)
             else {
               const { tableCode, takeawayNo, statementID, attendant, remark } = chefContent[0]
@@ -167,26 +129,7 @@ try {
                     }
                   })
                 }
-              } else if (hardwareType === 'USB') {
-                if (!hasUsbPrinters) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB Printers Not Found`)
-                else {
-                  const commands = await print(chefContent.map((orderCustomContent) => buildOrder(orderCustomContent)).join('=\n'), `-l zh -p generic`)
-                  const device = new USB(vid, pid)
-                  device.open((err) => {
-                    if (err) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device open failed: ${err}`)
-                    else {
-                      device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
-                        if (writeErr) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device write failed: ${writeErr}`, () => device.close(taskQueue.next))
-                        else {
-                          const waitTime = printTimeMap[pid]
-                          await sleep(waitTime)
-                          handler('0', `Print ${printType} to USB:[${vid};${pid}] success.`, () => device.close(taskQueue.next))
-                        }
-                      })
-                    }
-                  })
-                }
-              } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print ${printType}: ignore hardwareType ${hardwareType}`)
+              } else if (NO_NET_BRAND.includes(hardwareType)) handler('0', `Print ${printType}: ignore hardwareType ${hardwareType}`)
               else handler('1', `Print ${printType} failed: Unsupported hardwareType: ${hardwareType}`)
             }
           } catch (err) {
@@ -199,7 +142,7 @@ try {
         const printType = 'refund'
         for (const record of toPrintRefundContent) {
           try {
-            const { hardwareType, ip, vid, pid, refundContent } = record
+            const { hardwareType, ip, refundContent } = record
             if (!refundContent) handler('1', `refundContent empty.`)
             else if (!refundContent.food) handler('1', `refundContent.food empty.`)
             else {
@@ -220,26 +163,7 @@ try {
                     }
                   })
                 }
-              } else if (hardwareType === 'USB') {
-                if (!hasUsbPrinters) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB Printers Not Found`)
-                else {
-                  const commands = await print(buildRefund(refundContent), `-l zh -p generic`)
-                  const device = new USB(vid, pid)
-                  device.open((err) => {
-                    if (err) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device open failed: ${err}.`)
-                    else {
-                      device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
-                        if (writeErr) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device write failed: ${writeErr}.`, () => device.close(taskQueue.next))
-                        else {
-                          const waitTime = printTimeMap[pid]
-                          await sleep(waitTime)
-                          handler('0', `Print ${printType} to USB:[${vid};${pid}] success.`, () => device.close(taskQueue.next))
-                        }
-                      })
-                    }
-                  })
-                }
-              } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print ${printType}: ignore hardwareType ${hardwareType}`)
+              } else if (NO_NET_BRAND.includes(hardwareType)) handler('0', `Print ${printType}: ignore hardwareType ${hardwareType}`)
               else handler('1', `Print ${printType} failed: Unsupported hardwareType: ${hardwareType}`)
             }
           } catch (err) {
@@ -252,7 +176,7 @@ try {
         const printType = 'report'
         for (const record of toPrintRevenueAnalysisContent) {
           try {
-            const { hardwareType, ip, vid, pid, revenueAnalysis } = record
+            const { hardwareType, ip, revenueAnalysis } = record
             const { startDate, endDate, shopName } = revenueAnalysis
             const reportInfo = [`Session:${session}`, printType, `Start:${startDate}`, `End:${endDate}`, `Shop:${shopName}`].join('|')
             log(reportInfo, { prefix: '[INFO]' })
@@ -269,26 +193,7 @@ try {
                   }
                 })
               }
-            } else if (hardwareType === 'USB') {
-              if (!hasUsbPrinters) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB Printers Not Found`)
-              else {
-                const commands = await print(buildRevenueAnalysis(revenueAnalysis), `-l zh -p generic`)
-                const device = new USB(vid, pid)
-                device.open((err) => {
-                  if (err) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device open failed: ${err}.`)
-                  else {
-                    device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
-                      if (writeErr) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device write failed: ${writeErr}.`, () => device.close(taskQueue.next))
-                      else {
-                        const waitTime = printTimeMap[pid]
-                        await sleep(waitTime)
-                        handler('0', `Print ${printType} to USB:[${vid};${pid}] success.`, () => device.close(taskQueue.next))
-                      }
-                    })
-                  }
-                })
-              }
-            } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print ${printType}: ignore hardwareType ${hardwareType}`)
+            } else if (NO_NET_BRAND.includes(hardwareType)) handler('0', `Print ${printType}: ignore hardwareType ${hardwareType}`)
             else handler('1', `Print ${printType} failed: Unsupported hardwareType: ${hardwareType}`)
           } catch (err) {
             handler('1', `Print ${printType} failed: ${err.message}`)
@@ -338,24 +243,8 @@ try {
    * Lisenter funtioner on app start
    */
   function onListen() {
-    const { name, version } = getPackageJson()
-    log(`////////// ${name} ${version} Started //////////`)
-
-    // Print out USB printers
-    const printers = findPrinter()
-    if (!printers.length) {
-      log(`USB Printers Not Found`, {
-        prefix: '[INFO]',
-        skip: true,
-      })
-    } else {
-      log(`${printers.length} USB Printers Found`, {
-        prefix: '[INFO]',
-        details: JSON.stringify(printers),
-        skip: true,
-      })
-      printers.forEach(({ deviceDescriptor: { idVendor: vid, idProduct: pid } }, i) => log(`vid:0x${toHex(vid)}|pid:0x${toHex(pid)}`, { prefix: `[INFO]USB Printer ${i + 1}|` }))
-    }
+    const { version } = getPackageJson()
+    log(`////////// receipt-net ${version} Started //////////`)
 
     // Clean prev session.log
     taskQueue.next()
@@ -366,7 +255,7 @@ try {
    * @param {Error} err
    */
   function onError(err) {
-    fail(`${err.code}: Check if port 2000 was already in use(请检查端口已启用或被占用)`, { details: err.message })
+    fail(`${err.code}: ${err.message}`)
     taskQueue.next()
   }
 

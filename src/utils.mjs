@@ -97,30 +97,6 @@ export const f = (str) => numeral(str).format(PRICE)
 
 /**
  * @public
- * @typedef RevenueAnalysisContent
- * @property {string} address
- * @property {string} startDate
- * @property {string} endDate
- * @property {string} logo
- * @property {string} shopName
- * @property {number} totalAmount
- * @property {number} totalOnlinePaymentAmount
- * @property {number} totalCashPaymentAmount
- * @property {number} totalCreditCardAmount
- * @property {number} totalCreditTransactionAmount
- * @property {number} totalDeliveryAmount
- * @property {number} totalDeliveryOrders
- * @property {number} totalDiningInAmount
- * @property {number} totalDiningInOrders
- * @property {number} totalOrders
- * @property {number} totalPersonalTransferAmount
- * @property {number} totalStaffFreeAmount
- * @property {number} totalTakeawayAmount
- * @property {number} totalTakeawayOrders
- */
-
-/**
- * @public
  * @typedef BillCustomContent
  * @property {string} address
  * @property {string} createdDate
@@ -161,31 +137,35 @@ export const f = (str) => numeral(str).format(PRICE)
  */
 
 /**
- * @public
- * @typedef ToPrintRevenueAnalysisContent
- * @property {RevenueAnalysisContent} revenueAnalysis
- * @property {"Network" | "USB"} hardwareType
- * @property {string} [ip]
- * @property {string} [vid]
- * @property {string} [pid]
- */
-
-/**
- * @public
- * @typedef ToPrintRefundContent
- * @property {RefundContent} refundContent
- * @property {"Network" | "USB"} hardwareType
- * @property {string} [ip]
- * @property {string} [vid]
- * @property {string} [pid]
- */
-
-/**
  * @typedef RefundContent
  * @property {string} createdDate
  * @property {Food} food
  * @property {string} attendant Onsite
  * @property {string} tableCode Onsite
+ */
+
+/**
+ * @public
+ * @typedef RevenueAnalysisContent
+ * @property {string} address
+ * @property {string} startDate
+ * @property {string} endDate
+ * @property {string} logo
+ * @property {string} shopName
+ * @property {number} totalAmount
+ * @property {number} totalOnlinePaymentAmount
+ * @property {number} totalCashPaymentAmount
+ * @property {number} totalCreditCardAmount
+ * @property {number} totalCreditTransactionAmount
+ * @property {number} totalDeliveryAmount
+ * @property {number} totalDeliveryOrders
+ * @property {number} totalDiningInAmount
+ * @property {number} totalDiningInOrders
+ * @property {number} totalOrders
+ * @property {number} totalPersonalTransferAmount
+ * @property {number} totalStaffFreeAmount
+ * @property {number} totalTakeawayAmount
+ * @property {number} totalTakeawayOrders
  */
 
 /**
@@ -209,65 +189,24 @@ export const f = (str) => numeral(str).format(PRICE)
  */
 
 /**
- * Build receipt revenue analysis content
- * @param {RevenueAnalysisContent} revenueAnalysisContent
+ * @public
+ * @typedef ToPrintRefundContent
+ * @property {RefundContent} refundContent
+ * @property {"Network" | "USB"} hardwareType
+ * @property {string} [ip]
+ * @property {string} [vid]
+ * @property {string} [pid]
  */
-export const buildRevenueAnalysis = (revenueAnalysisContent) => {
-  const { startDate, endDate, shopName, totalAmount, totalCashPaymentAmount, totalOnlinePaymentAmount, totalCreditCardAmount, totalCreditTransactionAmount, totalDeliveryAmount, totalDeliveryOrders, totalDiningInAmount, totalDiningInOrders, totalOrders, totalPersonalTransferAmount, totalStaffFreeAmount, totalTakeawayAmount, totalTakeawayOrders } = revenueAnalysisContent
 
-  const date = new Date().toISOString().replace('T', ' ').substring(0, 19)
-
-  const avg = f(totalAmount / totalOrders || 0)
-
-  const HEADER = `"^${shopName}\n
-            ^Revenue Report\n
-         ${startDate.split('T')[0]} ${startDate.split('T')[1].split('+')[0]} - ${endDate.split('T')[0]} ${endDate.split('T')[1].split('+')[0]}"`
-
-  const PRINT_DATE_TIME = `\n\n\n Date: ${date.split(' ')[0]} |  Time: ${date.split(' ')[1]}\n-\n `
-
-  const TOTALS = `\n Total Amount | ${totalAmount} \n\n Total Orders | ${totalOrders} \n-\n`
-
-  const ORDER_TYPE_REPORT = `\n ^Order Type Report 
-
-
-    Dining in Amount | ${totalDiningInAmount}
-
-    Dining in Orders | ${totalDiningInOrders} 
-
-
-    Takeaway Amount | ${totalTakeawayAmount}
-
-    Takeaway Orders | ${totalTakeawayOrders} 
-
-
-    Delivery Amount | ${totalDeliveryAmount}
-
-    Delivery Orders | ${totalDeliveryOrders}
-
-    -\n`
-
-  const PAYMENT_TYPE_REPORT = `\n ^Payment Type Report
-
-
-    Online Payment | ${totalOnlinePaymentAmount}
-
-    Cash | ${totalCashPaymentAmount}
-
-    Credit Card | ${totalCreditCardAmount}
-
-    Personal Transfer | ${totalPersonalTransferAmount}
-
-    Credit Transaction | ${totalCreditTransactionAmount}
-
-    Staff Free | ${totalStaffFreeAmount}
-
-    -\n`
-
-  const AVERAGES_PER_ORDER = `\n ^Averages Per Order 
-   \n\n  Total Amount | ${avg} \n\n`
-
-  return HEADER + PRINT_DATE_TIME + TOTALS + ORDER_TYPE_REPORT + PAYMENT_TYPE_REPORT + AVERAGES_PER_ORDER
-}
+/**
+ * @public
+ * @typedef ToPrintRevenueAnalysisContent
+ * @property {RevenueAnalysisContent} revenueAnalysis
+ * @property {"Network" | "USB"} hardwareType
+ * @property {string} [ip]
+ * @property {string} [vid]
+ * @property {string} [pid]
+ */
 
 /**
  * Build bill print content
@@ -378,6 +317,67 @@ export const buildRefund = (refundContent) => {
 }
 
 /**
+ * Build receipt revenue analysis content
+ * @param {RevenueAnalysisContent} revenueAnalysisContent
+ */
+export const buildRevenueAnalysis = (revenueAnalysisContent) => {
+  const { startDate, endDate, shopName, totalAmount, totalCashPaymentAmount, totalOnlinePaymentAmount, totalCreditCardAmount, totalCreditTransactionAmount, totalDeliveryAmount, totalDeliveryOrders, totalDiningInAmount, totalDiningInOrders, totalOrders, totalPersonalTransferAmount, totalStaffFreeAmount, totalTakeawayAmount, totalTakeawayOrders } = revenueAnalysisContent
+
+  const date = new Date().toISOString().replace('T', ' ').substring(0, 19)
+
+  const avg = f(totalAmount / totalOrders || 0)
+
+  const HEADER = `"^${shopName}\n
+            ^Revenue Report\n
+         ${startDate.split('T')[0]} ${startDate.split('T')[1].split('+')[0]} - ${endDate.split('T')[0]} ${endDate.split('T')[1].split('+')[0]}"`
+
+  const PRINT_DATE_TIME = `\n\n\n Date: ${date.split(' ')[0]} |  Time: ${date.split(' ')[1]}\n-\n `
+
+  const TOTALS = `\n Total Amount | ${totalAmount} \n\n Total Orders | ${totalOrders} \n-\n`
+
+  const ORDER_TYPE_REPORT = `\n ^Order Type Report 
+
+
+    Dining in Amount | ${totalDiningInAmount}
+
+    Dining in Orders | ${totalDiningInOrders} 
+
+
+    Takeaway Amount | ${totalTakeawayAmount}
+
+    Takeaway Orders | ${totalTakeawayOrders} 
+
+
+    Delivery Amount | ${totalDeliveryAmount}
+
+    Delivery Orders | ${totalDeliveryOrders}
+
+    -\n`
+
+  const PAYMENT_TYPE_REPORT = `\n ^Payment Type Report
+
+
+    Online Payment | ${totalOnlinePaymentAmount}
+
+    Cash | ${totalCashPaymentAmount}
+
+    Credit Card | ${totalCreditCardAmount}
+
+    Personal Transfer | ${totalPersonalTransferAmount}
+
+    Credit Transaction | ${totalCreditTransactionAmount}
+
+    Staff Free | ${totalStaffFreeAmount}
+
+    -\n`
+
+  const AVERAGES_PER_ORDER = `\n ^Averages Per Order 
+   \n\n  Total Amount | ${avg} \n\n`
+
+  return HEADER + PRINT_DATE_TIME + TOTALS + ORDER_TYPE_REPORT + PAYMENT_TYPE_REPORT + AVERAGES_PER_ORDER
+}
+
+/**
  * Sleep for n ms
  * @param {number} ms
  * @returns {Promise<NodeJS.Timeout>}
@@ -391,8 +391,8 @@ export function sleep(ms) {
  * @returns {Object} Contents of package.json
  */
 export function getPackageJson() {
-  const currentPath = path.dirname(fileURLToPath(import.meta.url))
-  const packageJsonPath = path.resolve(currentPath, '../package.json')
+  // const currentPath = path.dirname(fileURLToPath(import.meta.url))
+  const packageJsonPath = path.resolve(process.cwd(), 'package.json')
   return JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
 }
 
