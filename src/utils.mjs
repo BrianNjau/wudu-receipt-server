@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url'
 import { setInterval, clearInterval } from 'node:timers'
 import ping from 'ping'
 import numeral from 'numeral'
-
 import { PRICE, SESSION_PATH } from './constants.mjs'
 
 /**
