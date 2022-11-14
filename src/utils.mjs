@@ -391,8 +391,8 @@ export function sleep(ms) {
  * @returns {Object} Contents of package.json
  */
 export function getPackageJson() {
-  // const currentPath = path.dirname(fileURLToPath(import.meta.url))
-  const packageJsonPath = path.resolve(process.cwd(), 'package.json')
+  const currentPath = path.dirname(fileURLToPath(import.meta.url))
+  const packageJsonPath = path.resolve(currentPath, '../package.json')
   return JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'))
 }
 

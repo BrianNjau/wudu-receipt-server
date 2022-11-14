@@ -1,10 +1,9 @@
 {
   "name": "receipt-server",
   "author": "Ynewtime",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "bin": {
-    "receipt-server": "bin/receipt-server.mjs",
-    "receipt-net": "bin/receipt-net.mjs"
+    "receipt-server": "bin/receipt-server.mjs"
   },
   "files": [
     "dist"
@@ -12,9 +11,7 @@
   "scripts": {
     "prepublishOnly": "npm run build",
     "dev": "nodemon -w src -w lib -w test src/index.mjs",
-    "dev:net": "nodemon -w src -w lib -w test src/receipt-net.mjs",
     "start": "node src/index.mjs",
-    "start:net": "node src/receipt-net.mjs",
     "build": "unbuild",
     "stub": "unbuild --stub",
     "release": "bumpp && npm publish"
