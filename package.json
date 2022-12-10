@@ -1,9 +1,9 @@
 {
   "name": "receipt-server",
   "author": "Ynewtime",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "bin": {
-    "receipt-server": "bin/receipt-server.mjs"
+    "receipt-server": "dist/index.cjs"
   },
   "files": [
     "dist"
@@ -12,7 +12,7 @@
     "prepublishOnly": "npm run build",
     "dev": "nodemon -w src -w lib -w test src/index.mjs",
     "start": "node src/index.mjs",
-    "build": "unbuild",
+    "build": "unbuild && pkg .",
     "stub": "unbuild --stub",
     "release": "bumpp && npm publish"
   },
@@ -26,8 +26,17 @@
     "usb": "^2.5.2"
   },
   "devDependencies": {
+    "@types/node": "^18.11.12",
     "bumpp": "^8.2.1",
     "nodemon": "^2.0.20",
-    "unbuild": "^0.9.4"
+    "pkg": "^5.8.0",
+    "unbuild": "^1.0.2"
+  },
+  "pkg": {
+    "assets": [
+      "./package.json",
+      "node_modules/usb/prebuilds"
+    ],
+    "outputPath": "build"
   }
 }

@@ -1,3 +1,7 @@
+# Custom
+build
+bun.lockb
+
 # Logs
 logs
 *.log
