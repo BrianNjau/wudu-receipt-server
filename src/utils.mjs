@@ -135,6 +135,17 @@ export const f = (str) => numeral(str).format(PRICE)
  * @property {string | null} [takeawayNo] Takeway or Delivery
  * @property {string | null} [receiverName] Takeway or Delivery
  */
+/**
+ * @public
+ * @typedef removeDishData
+ * @property {string} createdDate
+ * @property {string[]} attendant
+ * @property {number} amount
+ * @property {string} operator
+ * @property {string} productName
+ * @property {number} quantity
+ * @property {string} tableCode 
+ */
 
 /**
  * @typedef RefundContent
@@ -202,6 +213,15 @@ export const f = (str) => numeral(str).format(PRICE)
  * @public
  * @typedef ToPrintRevenueAnalysisContent
  * @property {RevenueAnalysisContent} revenueAnalysis
+ * @property {"Network" | "USB"} hardwareType
+ * @property {string} [ip]
+ * @property {string} [vid]
+ * @property {string} [pid]
+ */
+/**
+ * @public
+ * @typedef ToPrintRemoveDishReport
+ * @property {removeDishData[]} removeDishData
  * @property {"Network" | "USB"} hardwareType
  * @property {string} [ip]
  * @property {string} [vid]
@@ -376,6 +396,34 @@ export const buildRevenueAnalysis = (revenueAnalysisContent) => {
 
   return HEADER + PRINT_DATE_TIME + TOTALS + ORDER_TYPE_REPORT + PAYMENT_TYPE_REPORT + AVERAGES_PER_ORDER
 }
+
+
+/**
+ * Build receipt revenue analysis content
+ * @param {ToPrintRemoveDishReport} removeDishData
+ */
+export const buildRemoveDishes = (removeDishData, store, totalAmount, totalQuantity , startDate , endDate) => {
+
+
+  const HEADER = `"^VOID DISH REPORT \n\n  ${startDate?.split('T')[0]} ${startDate?.split('T')[1].split('+')[0]} - ${endDate?.split('T')[0]} ${endDate?.split('T')[1].split('+')[0]}`
+
+  const date = new Date().toISOString().replace('T', ' ').substring(0, 19)
+  const PRINT_DATE_TIME = `\n\n\n Date: ${date.split(' ')[0]} |  Time: ${date.split(' ')[1]}\n-\n `
+
+  const removeDishTable = `|"Table | "Dish | "Qty | "Amount |\n-
+${removeDishData.map(({amount, productName, quantity, tableCode}) => `| ${tableCode} | ${productName} | "${quantity} | "${amount}`).join('\n')}
+- 
+
+|^TOTAL | ^"${totalQuantity}| ^"${totalAmount}|\n-\n
+
+`
+
+
+  return HEADER + PRINT_DATE_TIME + removeDishTable
+
+}
+
+
 
 /**
  * Sleep for n ms
