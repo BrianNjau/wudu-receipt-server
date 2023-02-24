@@ -29,4 +29,6 @@ declare module 'receiptio' {
    * @returns {Transform} transform stream
    */
   export function createPrint(options?: string): Transform
+
 }
+

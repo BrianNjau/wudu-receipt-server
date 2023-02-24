@@ -13,9 +13,12 @@ import * as receiptio from '../lib/receiptio.js'
 import { OTHER_BRAND, PRINT_TIME, SESSION_PATH } from './constants.mjs'
 import { log, done, fail, toHex, buildBill, buildOrder, buildRefund, sleep, getPackageJson, buildRevenueAnalysis, IPListener, TaskQueue, buildRemoveDishes } from './utils.mjs'
 
+
 const print = receiptio.print
+const kickDrawer = receiptio.kickDrawer
 const taskQueue = new TaskQueue() // Printing task handling
 const ipListener = new IPListener() // Listening to the printer ip(s)
+
 
 try {
   const { findPrinter } = USB
@@ -122,10 +125,11 @@ try {
               if (!hasUsbPrinters) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB Printers Not Found`)
               else {
                 const commands = await print(buildBill(customerContent), `-l zh -p generic`)
-                const device = new USB(vid, pid)
+                const device = new USB(vid, pid)                    
                 device.open((err) => {
                   if (err) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device open failed: ${err}.`)
                   else {
+
                     device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
                       if (writeErr) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device write failed: ${writeErr}.`, () => device.close(taskQueue.next))
                       else {
@@ -343,12 +347,13 @@ try {
           } catch (err) {
             handler('1', `Print ${printType} failed: ${err.message}`)
           }
+
         }
       }
     } catch (err) {
       handler('1', `Print failed: ${err.message}.`)
     }
-  }
+  }4
 
   /**
    * Print main function

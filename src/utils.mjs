@@ -280,8 +280,8 @@ ${normalizedFoodList.map(({ name, modifier, num, price }) => `|${name} |\n${modi
   const receiverAdressMd = receiverAdress ? `Address: |${receiverAdress}\n` : ''
   const remarkMd = remark ? `Remark: |${remark}\n` : ''
   const FOOTER = `{w:10,*}\n${statementIDMd}${attendantMd}${createdDateMd}${receiverNameMd}${receiverPhoneMd}${receiverAdressMd}${remarkMd}{w:auto}\n-\n`
-
-  return HEADER + SUB_HEADER + FOOD_TABLE + FOOTER
+  const KICKDRAWER = statementID ?`{command:\x1b\x70\x00\x19\xfa}`:'';
+  return HEADER + SUB_HEADER + FOOD_TABLE + FOOTER +KICKDRAWER
 }
 
 /**
@@ -422,6 +422,7 @@ ${removeDishData.map(({amount, productName, quantity, tableCode}) => `| ${tableC
   return HEADER + PRINT_DATE_TIME + removeDishTable
 
 }
+
 
 
 

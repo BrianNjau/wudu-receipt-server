@@ -11,6 +11,7 @@ specifiers:
   numeral: ^2.0.6
   ping: ^0.4.2
   pkg: ^5.8.0
+  receiptline: ^1.15.0
   unbuild: ^1.0.2
   usb: ^2.5.2
 
@@ -21,6 +22,7 @@ dependencies:
   iconv-lite: 0.6.3
   numeral: 2.0.6
   ping: 0.4.2
+  receiptline: 1.15.0
   usb: 2.6.0
 
 devDependencies:
@@ -1941,6 +1943,11 @@ packages:
       - supports-color
     dev: true
 
+  /pngjs/5.0.0:
+    resolution: {integrity: sha512-40QW5YalBNfQo5yRYmiw7Yz6TKKVr3h6970B2YE+3fQpsWcrbj1PzJgxeJ19DRQjhMbKPIuMY8rFaXc8moolVw==}
+    engines: {node: '>=10.13.0'}
+    dev: false
+
   /prebuild-install/6.1.4:
     resolution: {integrity: sha512-Z4vpywnK1lBg+zdPCVCsKq0xO66eEV9rWo2zrROGGiRS4JtueBOdlB1FnY8lcy7JsUud/Q3ijUxyWN26Ika0vQ==}
     engines: {node: '>=6'}
@@ -2069,6 +2076,13 @@ packages:
     engines: {node: '>=8.10.0'}
     dependencies:
       picomatch: 2.3.1
+
+  /receiptline/1.15.0:
+    resolution: {integrity: sha512-30qg+gKZt6agG7uer6DfO21zFODYQ1JFnqZeKw+KFX8PjMtpIpIN3iy/qQJcIQHWvfYtd4j2/8VtNRKiQOhMVw==}
+    dependencies:
+      iconv-lite: 0.6.3
+      pngjs: 5.0.0
+    dev: false
 
   /require-directory/2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
