@@ -85,6 +85,8 @@ export const f = (str) => numeral(str).format(PRICE)
  * @property {string} num
  * @property {string} [price] Bill
  */
+/**
+
 
 /**
  * @public
@@ -145,6 +147,21 @@ export const f = (str) => numeral(str).format(PRICE)
  * @property {string} productName
  * @property {number} quantity
  * @property {string} tableCode 
+ */
+/**
+ * @public
+ * @typedef OrderReportData
+ * @property {string} attendant
+ * @property {string} date
+ * @property {number} deliveryFee
+ * @property {number} discountAmount
+ * @property {string} orderNo
+ * @property {string} orderType
+ * @property {number} totalPrice
+ * @property {string} paymentMethod
+ * @property {number} totalQuantity
+ * @property {string} storeName
+ * @property {string} tableNo
  */
 
 /**
@@ -227,6 +244,52 @@ export const f = (str) => numeral(str).format(PRICE)
  * @property {string} [vid]
  * @property {string} [pid]
  */
+/**
+ * @public
+ * @typedef ToPrintOrderReport
+ * @property {OrderReportData[]} orderReportData
+ * @property {"Network" | "USB"} hardwareType
+ * @property {string} [ip]
+ * @property {string} [vid]
+ * @property {string} [pid]
+ */
+
+/**
+ * Build bill print content
+ * @param {OrderReportData} orderReportData
+ */
+export const buildOrderReport = (orderReportData, store, startDate, endDate) => {
+
+  const curdate = new Date().toISOString().replace('T', ' ').substring(0, 19)
+  const PRINT_DATE_TIME = `\n\n\n Date: ${curdate.split(' ')[0]} |  Time: ${curdate.split(' ')[1]}\n-\n `
+  const HEADER = `"^${store}\n\n^Order Report\n\n${startDate.split('T')[0]} ${startDate.split('T')[1].split('+')[0]} - ${endDate.split('T')[0]} ${endDate.split('T')[1].split('+')[0]}"`
+  const total = orderReportData.map((a) => a.totalPrice).reduce((prev,next) => prev + next);
+  const totalCashAmount = orderReportData.filter((a) => a.paymentMethod == 'Cash').map((a) => a.totalPrice).reduce((prev,next) => prev + next,0);
+  const totalCouponAmount = orderReportData.filter((a) => a.paymentMethod == 'Coupon').map((a) => a.totalPrice).reduce((prev,next) => prev + next,0);
+  const totalMPESAOfflineAmount = orderReportData.filter((a) => a.paymentMethod == 'MPESAOffline').map((a) => a.totalPrice).reduce((prev,next) => prev + next,0);
+  const totalCreditCardAmount = orderReportData.filter((a) => a.paymentMethod == 'CreditCard').map((a) => a.totalPrice).reduce((prev,next) => prev + next,0);
+  const totalPersonalTransferAmount = orderReportData.filter((a) => a.paymentMethod == 'PersonalTransfer').map((a) => a.totalPrice).reduce((prev,next) => prev + next,0);
+  const totalCreditTransactionAmount = orderReportData.filter((a) => a.paymentMethod == 'CreditTransaction').map((a) => a.totalPrice).reduce((prev,next) => prev + next,0);
+  const totalStaffFreeAmount = orderReportData.filter((a) => a.paymentMethod == 'StaffFree').map((a) => a.totalPrice).reduce((prev,next) => prev + next,0);
+
+
+
+  const ORDER_TABLE = `|Date | Table | Paid | Price | Disc | Actual|\n-
+  ${orderReportData.map(({orderNo, date, tableNo, paymentMethod,originalPrice ,totalQuantity, discountAmount, totalPrice } ) => `| ${date.split(' ')[0]} | ${tableNo ? ` ${tableNo} ` : '-'} | ${paymentMethod} | ${f(originalPrice)} | ${f(discountAmount)} | "${f(totalPrice)}|`).join('\n')}
+ -\n^TOTAL | "^${total} `
+  const printCashAmount = totalCashAmount?`\n\nCash Amount: | ${totalCashAmount}`:'';
+  const printCouponAmount = totalCouponAmount?`\n\nCoupon Amount: | ${totalCouponAmount}`:'';
+  const printTotalMPESAOfflineAmount = totalMPESAOfflineAmount?`\n\nOffline Mpesa: | ${totalMPESAOfflineAmount}`:'';
+  const printTotalCreditCardAmount = totalCreditCardAmount?`\n\nCredit Card: | ${totalCreditCardAmount}`:'';
+  const printTotalPersonalTransferAmount = totalPersonalTransferAmount?`\n\nPersonal Transfer: | ${totalPersonalTransferAmount}`:'';
+  const printTotalCreditTransactionAmount = totalCreditTransactionAmount?`\n\nCredit Transaction: | ${totalCreditTransactionAmount}`:'';
+  const printTotalStaffFreeAmount = totalStaffFreeAmount?`\n\nStaff Free: | ${totalStaffFreeAmount}`:'';
+ 
+  // const KICKDRAWER = statementID ?`{command:\x1b\x70\x00\x19\xfa}`:'';
+  return HEADER + PRINT_DATE_TIME + ORDER_TABLE + printCashAmount + printCouponAmount + printTotalMPESAOfflineAmount + printTotalCreditCardAmount + printTotalPersonalTransferAmount + printTotalCreditTransactionAmount + printTotalStaffFreeAmount + `\n\n`; 
+}
+
+
 
 /**
  * Build bill print content
@@ -269,7 +332,7 @@ export const buildBill = (billCustomContent) => {
     }
   })
   const FOOD_TABLE = `|Name | Qty | Price | Total|\n-
-${normalizedFoodList.map(({ name, modifier, num, price }) => `|${name} |\n${modifier ? `|[${modifier}] |\n` : ''}|| ${num} | ${f(price)} | "${f(n(num) * n(price))}|`).join('\n')}
+${normalizedFoodList.map(({ name, modifier, num, price }) => `|${name} |\n${modifier ? `|[${ modifier}] |\n` : ''}|| ${num} | ${f(price)} | "${f(n(num) * n(price))}|`).join('\n')}
 -\n${deliveryFeeMd}${tipsFeeMd}${discountMd}^TOTAL | "^${totalPrice}\n-\n`
 
   const statementIDMd = statementID ? `Order No.: |${statementID}\n` : ''

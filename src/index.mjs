@@ -11,7 +11,7 @@ import chokidar from 'chokidar'
 import USB from '../lib/escpos-usb.mjs'
 import * as receiptio from '../lib/receiptio.js'
 import { OTHER_BRAND, PRINT_TIME, SESSION_PATH } from './constants.mjs'
-import { log, done, fail, toHex, buildBill, buildOrder, buildRefund, sleep, getPackageJson, buildRevenueAnalysis, IPListener, TaskQueue, buildRemoveDishes } from './utils.mjs'
+import { log, done, fail, toHex, buildBill, buildOrder, buildRefund, sleep, getPackageJson, buildRevenueAnalysis, IPListener, TaskQueue, buildRemoveDishes, buildOrderReport } from './utils.mjs'
 
 
 const print = receiptio.print
@@ -35,6 +35,7 @@ try {
    * @property {(import('./utils.mjs').ToPrintOrderContent)[]} toPrintOrderContent
    * @property {(import('./utils.mjs').ToPrintRefundContent)[]} toPrintRefundContent
    * @property {(import('./utils.mjs').ToPrintRevenueAnalysisContent)[]} toPrintRevenueAnalysisContent
+   * @property {(import('./utils.mjs').ToPrintOrderReport)[]} toPrintOrderReport
    */
 
   /**
@@ -78,17 +79,16 @@ try {
       const printers = findPrinter()
       const hasUsbPrinters = !!printers.length
 
-      if (!('toPrintBillContent' in body) && !('toPrintOrderContent' in body) && !('toPrintRefundContent' in body) && !('toPrintRevenueAnalysisContent' in body) && !('toPrintRemovedDishReport' in body)) {
-        return handler('1', `Print failed: 'toPrintBillContent', 'toPrintOrderContent', 'toPrintRefundContent' and 'toPrintRevenueAnalysisContent' and 'toPrintRemovedDishReport' not in the body.`)
+      if (!('toPrintBillContent' in body) && !('toPrintOrderContent' in body) && !('toPrintRefundContent' in body) && !('toPrintRevenueAnalysisContent' in body) && !('toPrintRemovedDishReport' in body) && !('toPrintOrderReport' in body)) {
+        return handler('1', `Print failed: 'toPrintBillContent', 'toPrintOrderContent', 'toPrintRefundContent' and 'toPrintRevenueAnalysisContent' and 'toPrintRemovedDishReport' and 'toPrintOrderReport' not in the body.`)
       }
 
-      const { toPrintBillContent, toPrintOrderContent, toPrintRefundContent, toPrintRevenueAnalysisContent, toPrintRemovedDishReport } = body
-      if (!(toPrintBillContent && toPrintBillContent.length) && !(toPrintOrderContent && toPrintOrderContent.length) && !(toPrintRefundContent && toPrintRefundContent.length) && !(toPrintRevenueAnalysisContent && toPrintRevenueAnalysisContent.length) && !(toPrintRemovedDishReport && toPrintRemovedDishReport.length)) {
-        return handler('1', `Print failed: 'toPrintBillContent', 'toPrintOrderContent', 'toPrintRefundContent' and 'toPrintRevenueAnalysisContent' and 'toPrintRemovedDishReport' empty.`)
+      const { toPrintBillContent, toPrintOrderContent, toPrintRefundContent, toPrintRevenueAnalysisContent, toPrintRemovedDishReport, toPrintOrderReport } = body
+      if (!(toPrintBillContent && toPrintBillContent.length) && !(toPrintOrderContent && toPrintOrderContent.length) && !(toPrintRefundContent && toPrintRefundContent.length) && !(toPrintRevenueAnalysisContent && toPrintRevenueAnalysisContent.length) && !(toPrintRemovedDishReport && toPrintRemovedDishReport.length)  && !(toPrintOrderReport && toPrintOrderReport.length)) {
+        return handler('1', `Print failed: 'toPrintBillContent', 'toPrintOrderContent', 'toPrintRefundContent' and 'toPrintRevenueAnalysisContent' and 'toPrintRemovedDishReport' and 'toPrintOrderReport' empty.`)
       }
-
       const printTimeMap = {}
-      const toPrintList = [...(toPrintBillContent || []), ...(toPrintOrderContent || []), ...(toPrintRefundContent || []), ...(toPrintRevenueAnalysisContent || []), ...(toPrintRemovedDishReport || [])]
+      const toPrintList = [...(toPrintBillContent || []), ...(toPrintOrderContent || []), ...(toPrintRefundContent || []), ...(toPrintRevenueAnalysisContent || []), ...(toPrintRemovedDishReport || []), ...(toPrintOrderReport || [])]
       toPrintList.forEach(({ pid, chefContent }) => {
         const time = chefContent ? chefContent.length * PRINT_TIME : PRINT_TIME
         if (pid) {
@@ -350,10 +350,59 @@ try {
 
         }
       }
+      if (toPrintOrderReport && toPrintOrderReport.length) {
+        const printType = 'order report'
+        for (const record of toPrintOrderReport) {
+          try {
+            const { hardwareType, ip, vid, pid, store, orderReportData, startDate,endDate } = record
+            const { date } = orderReportData[0]
+       
+            const reportInfo = [`Session:${session}`, printType, `Date:${date}`].join('|')
+            log(reportInfo, { prefix: '[INFO]' })
+            if (hardwareType === 'Network') {
+              if (!ip) handler('1', `Print ${printType} to Network failed: ip empty.`)
+              else if (net.isIP(ip) !== 4) handler('1', `Print ${printType} to Network failed: ip:${ip} incorrect, should be IPv4 format like: 1.1.1.1.`)
+              else {
+                ipListener.push(ip)
+                ping.sys.probe(ip, async function (isAlive) {
+                  if (!isAlive) handler('1', `Print ${printType} to Network failed: ip:${ip} failed to connect.`)
+                  else {
+                    await print(buildOrderReport(orderReportData, store, startDate , endDate), `-d ${ip} -l zh -p generic`)
+                    handler('0', `Print ${printType} to Network:${ip} success.`)
+                  }
+                })
+              }
+            } else if (hardwareType === 'USB') {
+              if (!hasUsbPrinters) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB Printers Not Found`)
+              else {
+                const commands = await print(buildOrderReport(orderReportData,store, startDate , endDate), `-l zh -p generic`)
+                const device = new USB(vid, pid)
+                device.open((err) => {
+                  if (err) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device open failed: ${err}.`)
+                  else {
+                    device.write(Buffer.from(commands, 'binary'), async (writeErr) => {
+                      if (writeErr) handler('1', `Print ${printType} to USB:[${vid};${pid}] failed: USB device write failed: ${writeErr}.`, () => device.close(taskQueue.next))
+                      else {
+                        const waitTime = printTimeMap[pid]
+                        await sleep(waitTime)
+                        handler('0', `Print ${printType} to USB:[${vid};${pid}] success.`, () => device.close(taskQueue.next))
+                      }
+                    })
+                  }
+                })
+              }
+            } else if (OTHER_BRAND.includes(hardwareType)) handler('0', `Print ${printType}: ignore hardwareType ${hardwareType}`)
+            else handler('1', `Print ${printType} failed: Unsupported hardwareType: ${hardwareType}`)
+          } catch (err) {
+            handler('1', `Print ${printType} failed: ${err.message}`)
+          }
+
+        }
+      }
     } catch (err) {
       handler('1', `Print failed: ${err.message}.`)
     }
-  }4
+  }
 
   /**
    * Print main function
